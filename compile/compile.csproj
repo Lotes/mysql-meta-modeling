@@ -99,7 +99,6 @@
     <Content Include="tests\%24helpers\function_assert_is_true.sql" />
     <Content Include="tests\%24helpers\index.sql" />
     <Content Include="tests\%24helpers\function_assert_is_false.sql" />
-    <Content Include="tests\packages\function_is_package.sql" />
     <Content Include="tests\packages\index.sql" />
     <Content Include="test_suite.sql" />
   </ItemGroup>
