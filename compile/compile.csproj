@@ -73,6 +73,12 @@
     <Content Include="scripts\attributes\view.sql" />
     <Content Include="scripts\classifiers\index.sql" />
     <Content Include="scripts\classifiers\table.sql" />
+    <Content Include="scripts\classes\index.sql" />
+    <Content Include="scripts\classes\table.sql" />
+    <Content Include="scripts\classes\view.sql" />
+    <Content Include="scripts\datatypes\index.sql" />
+    <Content Include="scripts\datatypes\table.sql" />
+    <Content Include="scripts\datatypes\view.sql" />
     <Content Include="scripts\main.sql" />
     <Content Include="scripts\named_elements\index.sql" />
     <Content Include="scripts\named_elements\table.sql" />
