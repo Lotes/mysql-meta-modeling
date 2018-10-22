@@ -80,10 +80,15 @@
     <Content Include="scripts\datatypes\table.sql" />
     <Content Include="scripts\datatypes\view.sql" />
     <Content Include="scripts\main.sql" />
+    <Content Include="scripts\named_elements\function_create_named_element.sql" />
     <Content Include="scripts\named_elements\index.sql" />
     <Content Include="scripts\named_elements\table.sql" />
+    <Content Include="scripts\packages\function_create_package.sql" />
+    <Content Include="scripts\packages\function_package_contains_name.sql" />
+    <Content Include="scripts\packages\function_is_package.sql" />
     <Content Include="scripts\packages\index.sql" />
     <Content Include="scripts\packages\table.sql" />
+    <Content Include="scripts\packages\view.sql" />
     <Content Include="scripts\references\index.sql" />
     <Content Include="scripts\references\view.sql" />
     <Content Include="scripts\references\table.sql" />
@@ -91,6 +96,12 @@
     <Content Include="scripts\structural_features\table.sql" />
     <Content Include="scripts\typed_elements\index.sql" />
     <Content Include="scripts\typed_elements\table.sql" />
+    <Content Include="tests\%24helpers\function_assert_is_true.sql" />
+    <Content Include="tests\%24helpers\index.sql" />
+    <Content Include="tests\%24helpers\function_assert_is_false.sql" />
+    <Content Include="tests\packages\function_is_package.sql" />
+    <Content Include="tests\packages\index.sql" />
+    <Content Include="test_suite.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

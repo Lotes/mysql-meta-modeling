@@ -1,5 +1,5 @@
 CREATE TABLE named_elements (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	name VARCHAR(50) NOT NULL,
 	PRIMARY KEY(id)
 );

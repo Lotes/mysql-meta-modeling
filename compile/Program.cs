@@ -21,6 +21,7 @@ namespace compile
             connectionStringBuilder.Port = 3306;
             connectionStringBuilder.UserID = "kw";
             connectionStringBuilder.Password = "";
+            connectionStringBuilder.AllowUserVariables = true;
             using (var connection = new MySql.Data.MySqlClient.MySqlConnection(connectionStringBuilder.ToString()))
             {
                 connection.Open();
@@ -35,21 +36,28 @@ namespace compile
                 var info = new FileInfo(fileName);
                 var files = new HashSet<string>();
                 var stack = new Stack<string>();
-                ProcessFile(info, files, stack, file =>
+
+                using (var transaction = connection.BeginTransaction())
                 {
-                    using (var cmd = connection.CreateCommand())
+                    ProcessFile(info, files, stack, file =>
                     {
-                        Console.WriteLine("CALL " + file.FullName.Substring(info.Directory.FullName.Length+1));
-                        cmd.CommandText = File.ReadAllText(file.FullName);
-                        try
+                        using (var cmd = connection.CreateCommand())
                         {
-                            cmd.ExecuteNonQuery();
-                        } catch(MySql.Data.MySqlClient.MySqlException ex)
-                        {
-                            Console.Error.WriteLine("ERROR: "+ex.Message);
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = File.ReadAllText(file.FullName);
+                            try
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                            catch (MySql.Data.MySqlClient.MySqlException ex)
+                            {
+                                Console.WriteLine("CALL " + file.FullName.Substring(info.Directory.FullName.Length + 1));
+                                Console.Error.WriteLine("ERROR: " + ex.Message);
+                            }
                         }
-                    }
-                });
+                    });
+                    transaction.Commit();
+                }
             }
         }
 
