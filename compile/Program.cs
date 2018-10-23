@@ -11,6 +11,7 @@ namespace compile
     public class Program
     {
         private static Regex Pattern = new Regex("^(--|#)import \"([^\"]+)\"\\s*$", RegexOptions.Multiline);
+        private static Regex Separator = new Regex("(/|\\\\)", RegexOptions.Multiline);
 
         static void Main(string[] args)
         {
@@ -19,8 +20,8 @@ namespace compile
             var connectionStringBuilder = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder();
             connectionStringBuilder.SslMode = MySql.Data.MySqlClient.MySqlSslMode.None;
             connectionStringBuilder.Port = 3306;
-            connectionStringBuilder.UserID = "kw";
-            connectionStringBuilder.Password = "";
+            connectionStringBuilder.UserID = "root";
+            connectionStringBuilder.Password = "123456";
             connectionStringBuilder.AllowUserVariables = true;
             using (var connection = new MySql.Data.MySqlClient.MySqlConnection(connectionStringBuilder.ToString()))
             {
@@ -73,7 +74,7 @@ namespace compile
             foreach(Match match in Pattern.Matches(content))
             {
                 var directory = info.Directory.FullName;
-                var fileName = match.Groups[2].Value;
+                var fileName = Separator.Replace(match.Groups[2].Value, Path.DirectorySeparatorChar.ToString());
                 var nextInfo = new FileInfo(Path.Combine(directory, fileName));
                 ProcessFile(nextInfo, files, stack, doIt);
             }
