@@ -1,2 +1,2 @@
-﻿#import "table.sql"
-#import "function_create_named_element.sql"
+﻿#import "table"
+#import "function_create_named_element"

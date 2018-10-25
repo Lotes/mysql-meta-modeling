@@ -1,4 +1,4 @@
-﻿#import "..\structural_features\table.sql"
+﻿#import "..\structural_features\table"
 
 CREATE TABLE refs (
 	id INT NOT NULL,

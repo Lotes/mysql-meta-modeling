@@ -1,4 +1,4 @@
-﻿#import "table.sql"
+﻿#import "table"
 
 CREATE FUNCTION package_contains_name (
 		parentID INT,

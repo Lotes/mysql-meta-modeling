@@ -1,5 +1,5 @@
-﻿#import "..\named_elements\table.sql"
-#import "table.sql"
+﻿#import "..\named_elements\table"
+#import "table"
 
 CREATE VIEW view_packages AS
 SELECT 
@@ -11,5 +11,4 @@ FROM
 	packages p
 WHERE
 	ne.id = p.id
-;
 ;

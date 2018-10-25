@@ -1,5 +1,5 @@
-﻿#import "..\named_elements\table.sql"
-#import "..\classifiers\table.sql"
+﻿#import "..\named_elements\table"
+#import "..\classifiers\table"
 
 CREATE TABLE typed_elements (
 	id INT NOT NULL,

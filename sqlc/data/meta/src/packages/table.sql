@@ -1,4 +1,4 @@
-﻿#import "..\named_elements\table.sql"
+﻿#import "..\named_elements\table"
 
 CREATE TABLE packages (
 	id INT NOT NULL,

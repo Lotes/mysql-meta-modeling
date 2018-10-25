@@ -1,2 +1,2 @@
-﻿#import "table.sql"
-#import "view.sql"
+﻿#import "table"
+#import "view"

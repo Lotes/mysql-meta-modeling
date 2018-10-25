@@ -1,4 +1,4 @@
-﻿#import "..\structural_features\table.sql"
+﻿#import "..\structural_features\table"
 
 CREATE TABLE attributes (
 	id INT NOT NULL,

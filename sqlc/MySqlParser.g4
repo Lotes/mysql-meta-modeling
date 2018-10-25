@@ -25,6 +25,10 @@ THE SOFTWARE.
 
 parser grammar MySqlParser;
 
+@header {
+package de.loteslab.mm.sqlc.lang;	
+}
+
 options { tokenVocab=MySqlLexer; }
 
 

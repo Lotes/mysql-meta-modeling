@@ -25,6 +25,10 @@ THE SOFTWARE.
 
 lexer grammar MySqlLexer;
 
+@header {
+package de.loteslab.mm.sqlc.lang;	
+}
+
 @channels { MYSQLCOMMENT, ERRORCHANNEL }
 
 // SKIP

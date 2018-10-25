@@ -1,7 +1,7 @@
-﻿#import "..\typed_elements\table.sql"
-#import "..\named_elements\table.sql"
-#import "..\structural_features\table.sql"
-#import "table.sql"
+﻿#import "..\typed_elements\table"
+#import "..\named_elements\table"
+#import "..\structural_features\table"
+#import "table"
 
 CREATE VIEW view_classes AS
 SELECT 

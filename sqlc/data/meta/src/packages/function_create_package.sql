@@ -1,6 +1,6 @@
-﻿#import "table.sql"
-#import "function_is_package.sql"
-#import "function_package_contains_name.sql"
+﻿#import "table"
+#import "function_is_package"
+#import "function_package_contains_name"
 
 CREATE FUNCTION create_package (
 		name VARCHAR(50),

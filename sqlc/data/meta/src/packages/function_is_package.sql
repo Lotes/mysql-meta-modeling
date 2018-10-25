@@ -1,4 +1,4 @@
-﻿#import "table.sql"
+﻿#import "table"
 
 CREATE FUNCTION is_package (
 		given_id INT

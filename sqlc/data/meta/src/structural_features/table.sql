@@ -1,5 +1,5 @@
-﻿#import "..\typed_elements\table.sql"
-#import "..\classes\table.sql"
+﻿#import "..\typed_elements\table"
+#import "..\classes\table"
 
 CREATE TABLE structural_features (
 	id INT NOT NULL,

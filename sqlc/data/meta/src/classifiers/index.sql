@@ -1,1 +1,1 @@
-﻿#import "table.sql"
+﻿#import "table"

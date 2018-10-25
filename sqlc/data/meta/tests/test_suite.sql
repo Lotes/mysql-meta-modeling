@@ -1,1 +1,1 @@
-﻿#import "tests\packages\index.sql"
+﻿#import "tests\packages\index"

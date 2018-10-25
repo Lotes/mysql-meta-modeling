@@ -1,4 +1,4 @@
-﻿#import "table.sql"
+﻿#import "table"
 
 CREATE FUNCTION create_named_element (
 		given_name VARCHAR(50)
