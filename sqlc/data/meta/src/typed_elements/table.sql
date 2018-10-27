@@ -11,6 +11,6 @@ CREATE TABLE typed_elements (
 	PRIMARY KEY(id),
 	FOREIGN KEY(id) REFERENCES named_elements(id)
 		ON DELETE CASCADE,
-	FOREIGN KEY(type_id) REFERENCES typed_elements(id)
+	FOREIGN KEY(type_id) REFERENCES classifiers(id)
 		ON DELETE CASCADE
 );

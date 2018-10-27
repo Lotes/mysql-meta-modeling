@@ -1,7 +1,8 @@
 # import "table"
 
 CREATE FUNCTION create_named_element (
-		given_name VARCHAR(50)
+		given_name VARCHAR(50),
+		given_type ENUM('PACKAGE', 'CLASS', 'DATATYPE', 'REFERENCE', 'ATTRIBUTE')
 	)
 	RETURNS INT
 	COMMENT 'creates a new named element'
@@ -10,6 +11,6 @@ CREATE FUNCTION create_named_element (
 	MODIFIES SQL DATA
 	SQL SECURITY DEFINER
 BEGIN
-	INSERT INTO named_elements (name) VALUE (given_name);
+	INSERT INTO named_elements (name, type) VALUE (given_name, given_type);
 	RETURN LAST_INSERT_ID();
 END;

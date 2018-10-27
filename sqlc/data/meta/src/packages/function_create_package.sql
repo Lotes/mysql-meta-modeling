@@ -23,7 +23,7 @@ BEGIN
 		RETURN -1;
 	END IF;
 	
-	SET my_id = create_named_element(name);
+	SET my_id = create_named_element(name, 'PACKAGE');
 
 	IF parent_id <> -1 THEN
 		INSERT INTO packages (id, parent_package_id) VALUES(my_id, parent_id);

@@ -11,6 +11,11 @@ CREATE FUNCTION is_package (
 	SQL SECURITY DEFINER
 BEGIN
 	DECLARE packageId INT DEFAULT -1;
-	SELECT id FROM view_packages vp WHERE vp.id=given_id INTO packageId;
+	
+	SELECT id
+	FROM named_elements ne
+	WHERE ne.id=given_id AND ne.type='PACKAGE'
+	INTO packageId;
+	
 	RETURN packageId <> -1;
 END;

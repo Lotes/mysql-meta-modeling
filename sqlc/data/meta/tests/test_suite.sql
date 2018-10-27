@@ -1,1 +1,1 @@
-#import "tests\packages\index"
+#import "packages\index"
