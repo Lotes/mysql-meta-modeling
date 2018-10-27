@@ -3,29 +3,37 @@ package de.loteslab.mmm.sqlc;
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.spi.CharsetProvider;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.mysql.cj.MysqlConnection;
-
-import picocli.CommandLine.Help.Visibility;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jgrapht.Graph;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.builder.GraphBuilder;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+
+import de.loteslab.mmm.sqlc.lang.Script;
+import picocli.CommandLine.Help.Visibility;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public class ExecuteCommand {
 	@Option(names = {"-h", "--host"}, defaultValue = "localhost", type = String.class, arity = "1..1", description = "database host", showDefaultValue=Visibility.ALWAYS)
@@ -66,7 +74,7 @@ public class ExecuteCommand {
 		try {
 			String password = this.password == null ? readPwd() : this.password;
 			System.out.print(String.format("Connecting to '%s' at port %d as user '%s'...", host, port, userName));
-		    try(Connection conn = DriverManager.getConnection(String.format("jdbc:mysql://%s:%d?user=%s&password=%s", 
+		    try(Connection conn = DriverManager.getConnection(String.format("jdbc:mysql://%s:%d?user=%s&password=%s&allowMultiQueries=true", 
 		    		host, port, userName, password)))
 		    {
 		    	System.out.println("ok");
@@ -75,11 +83,11 @@ public class ExecuteCommand {
 		    	{
 		    		switch(mode) {
 			    	case DROP_AND_CREATE:
-			    		statement.addBatch("DROP DATABASE IF EXISTS `"+databaseName+"`;");
-			    		statement.addBatch("CREATE DATABASE `"+databaseName+"`;");
+			    		statement.addBatch("DROP DATABASE IF EXISTS `"+databaseName+"`");
+			    		statement.addBatch("CREATE DATABASE `"+databaseName+"`");
 			    		
 			    	case USE:
-			    		statement.addBatch("USE `"+databaseName+"`;");
+			    		statement.addBatch("USE `"+databaseName+"`");
 			    		break;
 			    	}
 		    		statement.executeBatch();
@@ -87,6 +95,9 @@ public class ExecuteCommand {
 		    	
 			    readEntryFiles(conn, file);
 		    }
+		} catch(CycleFoundExcpetion e) {
+			System.err.println("cycle found");
+			System.err.println(e.getMessage());
 		} catch(IOException ex) {
 			System.err.println("failed");
 			System.err.println("IO Error: "+ex.getMessage());
@@ -98,70 +109,84 @@ public class ExecuteCommand {
 		}
 	}
 	
-	private static final Pattern patternImport = Pattern.compile("^#import \"([^\"]+)\"$");
+	private static final Pattern patternImport = Pattern.compile("^#\\s*import\\s+\"([^\"]+)\"$");
 	
-	private void readEntryFiles(Connection conn, File file) throws IOException {
+	private void readEntryFiles(Connection conn, File file) throws IOException, CycleFoundExcpetion {
+		HashMap<String, Script> filesContent = new HashMap<String, Script>();
 		HashSet<String> filesSet = new HashSet<String>();
-		LinkedList<File> filesOrder = new LinkedList<File>();
+		final Graph<String, DefaultEdge> dependencies = new DefaultDirectedGraph<>(DefaultEdge.class);
 		Stack<String> filesStack = new Stack<String>();
-		Object context = new Object();
-		try {
-			context = loadFile(file, filesSet, filesOrder, filesStack, context);
-		} catch (CycleFoundExcpetion e) {
-			System.err.println(e.getMessage());
-			System.exit(1);
-		}	
 		
-		for(File found: filesOrder) {
-			String query = readFile(found.getAbsolutePath(), Charset.forName("UTF-8"));
+		loadFile(file, filesSet, dependencies, filesStack, filesContent);
+		
+		//find a cycle
+		CycleDetector<String, DefaultEdge> detector = new CycleDetector<>(dependencies);
+		if(detector.detectCycles()) {
+			throw new CycleFoundExcpetion(detector.findCycles());
+		}
+		LinkedList<String> filesOrder = new LinkedList<>();
+		TopologicalOrderIterator<String, DefaultEdge> iterator = new TopologicalOrderIterator<>(dependencies);
+		while(iterator.hasNext())
+			filesOrder.add(iterator.next());
+		
+		for(String found: filesOrder) {
+			String query = filesContent.get(found).getContent();
+			if(query != null && !query.isEmpty())
 			try {
+				System.out.print("- executing '"+found+"'...");
 				try(Statement statement = conn.createStatement())
 				{
 					statement.execute(query);	
 				}
+				System.out.println("ok");
 			} catch (SQLException e) {
-				System.err.println("ERROR at "+found.getName());
+				System.err.println("failed");
+				System.err.println("ERROR at "+found);
 				System.err.println(e.getMessage());
 			}
 		}
 	}
 
-	private Object loadFile(File file, HashSet<String> filesSet, LinkedList<File> filesOrder, Stack<String> filesStack, Object context) throws IOException, CycleFoundExcpetion {
+	private void loadFile(File file, HashSet<String> filesSet, Graph<String, DefaultEdge> dependencies, Stack<String> filesStack, HashMap<String, Script> filesContent) 
+			throws IOException, CycleFoundExcpetion, SecurityException {
 		if(!file.isFile())
-			return context;
-		String path = file.getAbsolutePath();
+			return;
+		String path = file.getCanonicalFile().getAbsolutePath();
 	    if(filesSet.contains(path))
-	    	return context;
+	    	return;
 	    if(filesStack.contains(path))
 	    	throw new CycleFoundExcpetion(filesStack);
 	    filesStack.push(path);
 	    filesSet.add(path);
-	    filesOrder.addFirst(file);
-	    
+	    dependencies.addVertex(file.getCanonicalFile().getAbsolutePath());
+	
+	    Charset charset = Charset.forName("ISO-8859-1");
 	    LinkedList<File> importedFiles = new LinkedList<File>();
-	    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-		    String line;
-		    while ((line = br.readLine()) != null) {
-		        Matcher matcher = patternImport.matcher(line);
-		        if(matcher.find()) {    
-		        	File importFile = new File(file.getParentFile(), matcher.group(1)+".sql");
-		        	importedFiles.add(importFile);
-		        	continue;
-		        }
-		    }
-		}
+	    StringBuilder builder = new StringBuilder();
+	    Files.lines(file.toPath(), charset).forEach(line -> {
+	    	Matcher matcher = patternImport.matcher(line);
+	        if(matcher.find()) {    
+	        	File importFile = new File(file.getParentFile(), matcher.group(1).replaceAll("(\\\\|/)", File.separator)+".sql");
+	        	importedFiles.add(importFile);
+	        	String from;
+				try {
+					from = importFile.getCanonicalFile().getAbsolutePath();
+				} catch (IOException e) {
+					from = importFile.getAbsolutePath();
+				}
+	        	dependencies.addVertex(from);
+	        	dependencies.addEdge(from, path);
+	        } else {
+	        	builder.append(line);
+	        	builder.append("\r\n");
+	        }
+	    });
+	    String content = builder.toString();
+	    Script script = new Script(file, content);
+	    filesContent.put(file.getAbsolutePath(), script);
 	    
 	    for(File importFile: importedFiles)
-	    	loadFile(importFile, filesSet, filesOrder, filesStack, context);
-	    
-	    return context;
-	}
-	
-	private static String readFile(String path, Charset encoding) 
-			  throws IOException 
-	{
-	  byte[] encoded = Files.readAllBytes(Paths.get(path));
-	  return new String(encoded, encoding);
+	    	loadFile(importFile, filesSet, dependencies, filesStack, filesContent);
 	}
 
 	private static String readPwd() throws IOException {

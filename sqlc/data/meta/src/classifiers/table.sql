@@ -1,5 +1,5 @@
-﻿#import "..\packages\table"
-#import "..\named_elements\table"
+# import "..\packages\table"
+# import "..\named_elements\table"
 
 CREATE TABLE classifiers (
 	id INT NOT NULL,

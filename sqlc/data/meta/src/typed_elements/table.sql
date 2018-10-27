@@ -1,4 +1,4 @@
-﻿#import "..\named_elements\table"
+#import "..\named_elements\table"
 #import "..\classifiers\table"
 
 CREATE TABLE typed_elements (

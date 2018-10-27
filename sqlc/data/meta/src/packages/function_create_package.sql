@@ -1,6 +1,6 @@
-﻿#import "table"
-#import "function_is_package"
-#import "function_package_contains_name"
+# import "table"
+# import "function_is_package"
+# import "function_package_contains_name"
 
 CREATE FUNCTION create_package (
 		name VARCHAR(50),

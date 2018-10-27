@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE assert_is_false (
+CREATE PROCEDURE assert_is_false (
 		value BOOL,
 		txt VARCHAR(100)
 	)

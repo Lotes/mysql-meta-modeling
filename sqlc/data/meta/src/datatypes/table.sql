@@ -1,4 +1,4 @@
-﻿#import "..\classifiers\table"
+# import "..\classifiers\table"
 
 CREATE TABLE datatypes (
 	id INT NOT NULL,

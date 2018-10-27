@@ -1,5 +1,5 @@
-﻿#import "..\named_elements\table"
-#import "table"
+# import "..\named_elements\table"
+# import "table"
 
 CREATE VIEW view_packages AS
 SELECT 
