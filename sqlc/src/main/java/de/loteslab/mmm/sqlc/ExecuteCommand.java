@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -114,7 +115,8 @@ public class ExecuteCommand {
 	private void readEntryFiles(Connection conn, File file) throws IOException, CycleFoundExcpetion {
 		HashMap<String, Script> filesContent = new HashMap<String, Script>();
 		HashSet<String> filesSet = new HashSet<String>();
-		final Graph<String, DefaultEdge> dependencies = new DefaultDirectedGraph<>(DefaultEdge.class);
+		Graph<String, DefaultEdge> dependencies = new DefaultDirectedGraph<>(DefaultEdge.class);
+		Path rootPath = file.getParentFile().toPath();
 		
 		loadFile(file, filesSet, dependencies, filesContent);
 		
@@ -131,15 +133,20 @@ public class ExecuteCommand {
 		for(String found: filesOrder) {
 			try {
 				Script script = filesContent.get(found);
-				String query = script.getContent();
-				if(query != null && !query.isEmpty())
-				{
-					System.out.print("- executing '"+found+"'...");
-					try(Statement statement = conn.createStatement())
+				if(script == null) {
+					throw new FileNotFoundException(found);
+				} else {
+					String query = script.getContent();
+					if(query != null && !query.isEmpty())
 					{
-						statement.execute(query);	
+						Path foundPath = script.getFile().toPath();
+						System.out.print("- executing '"+rootPath.relativize(foundPath)+"'...");
+						try(Statement statement = conn.createStatement())
+						{
+							statement.execute(query);	
+						}
+						System.out.println("ok");	
 					}
-					System.out.println("ok");	
 				}
 			} catch (Exception e) {
 				System.err.println("failed");
@@ -165,15 +172,34 @@ public class ExecuteCommand {
 	    	Matcher matcher = patternImport.matcher(line);
 	        if(matcher.find()) {    
 	        	File importFile = new File(file.getParentFile(), matcher.group(1).replaceAll("(\\\\|/)", File.separator)+".sql");
-	        	importedFiles.add(importFile);
-	        	String from;
-				try {
-					from = importFile.getCanonicalFile().getAbsolutePath();
-				} catch (IOException e) {
-					from = importFile.getAbsolutePath();
-				}
-	        	dependencies.addVertex(from);
-	        	dependencies.addEdge(from, path);
+	        	if(importFile.getName().equals("*.sql")) {
+	        		File folder = importFile.getParentFile();
+	        		for(File nextFile: folder.listFiles()) {
+	        			if(!nextFile.isFile())
+	        				continue;
+	        			if(!nextFile.getName().endsWith(".sql"))
+	        				continue;
+	        			importedFiles.add(nextFile);
+			        	String from;
+						try {
+							from = nextFile.getCanonicalFile().getAbsolutePath();
+						} catch (IOException e) {
+							from = nextFile.getAbsolutePath();
+						}
+			        	dependencies.addVertex(from);
+			        	dependencies.addEdge(from, path);
+	        		}
+	        	} else {
+	        		importedFiles.add(importFile);
+		        	String from;
+					try {
+						from = importFile.getCanonicalFile().getAbsolutePath();
+					} catch (IOException e) {
+						from = importFile.getAbsolutePath();
+					}
+		        	dependencies.addVertex(from);
+		        	dependencies.addEdge(from, path);	
+	        	}
 	        } else {
 	        	builder.append(line);
 	        	builder.append("\r\n");
