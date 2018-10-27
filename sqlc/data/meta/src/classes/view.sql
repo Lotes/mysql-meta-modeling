@@ -12,8 +12,7 @@ SELECT
 	te.upper_bound,
 	te.is_ordered,
 	te.is_unique,
-	r.is_abstract,
-	r.is_interface
+	r.abstraction
 FROM
 	named_elements ne,
 	typed_elements te,

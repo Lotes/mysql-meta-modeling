@@ -1,5 +1,5 @@
-#import "..\..\src\main"
-#import "..\$helpers\index"
+#import "..\src\main"
+#import "$helpers\index"
 
 CALL assert_is_false(is_package(1234567890), 'Random number is not a package.');
 

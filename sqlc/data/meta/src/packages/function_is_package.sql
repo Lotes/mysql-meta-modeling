@@ -1,4 +1,4 @@
-# import "table"
+#import "table"
 
 CREATE FUNCTION is_package (
 		given_id INT
@@ -10,12 +10,12 @@ CREATE FUNCTION is_package (
 	READS SQL DATA
 	SQL SECURITY DEFINER
 BEGIN
-	DECLARE packageId INT DEFAULT -1;
+	DECLARE package_id INT DEFAULT -1;
 	
-	SELECT id
+	SELECT ne.id
 	FROM named_elements ne
 	WHERE ne.id=given_id AND ne.type='PACKAGE'
-	INTO packageId;
+	INTO package_id;
 	
-	RETURN packageId <> -1;
+	RETURN package_id <> -1;
 END;

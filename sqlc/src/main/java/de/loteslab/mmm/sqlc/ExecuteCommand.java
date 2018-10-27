@@ -143,8 +143,7 @@ public class ExecuteCommand {
 				}
 			} catch (Exception e) {
 				System.err.println("failed");
-				System.err.println("ERROR at "+found);
-				System.err.println(e.getMessage());
+				e.printStackTrace(System.err);
 			}
 		}
 	}
