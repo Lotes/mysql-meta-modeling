@@ -115,9 +115,8 @@ public class ExecuteCommand {
 		HashMap<String, Script> filesContent = new HashMap<String, Script>();
 		HashSet<String> filesSet = new HashSet<String>();
 		final Graph<String, DefaultEdge> dependencies = new DefaultDirectedGraph<>(DefaultEdge.class);
-		Stack<String> filesStack = new Stack<String>();
 		
-		loadFile(file, filesSet, dependencies, filesStack, filesContent);
+		loadFile(file, filesSet, dependencies, filesContent);
 		
 		//find a cycle
 		CycleDetector<String, DefaultEdge> detector = new CycleDetector<>(dependencies);
@@ -130,16 +129,19 @@ public class ExecuteCommand {
 			filesOrder.add(iterator.next());
 		
 		for(String found: filesOrder) {
-			String query = filesContent.get(found).getContent();
-			if(query != null && !query.isEmpty())
 			try {
-				System.out.print("- executing '"+found+"'...");
-				try(Statement statement = conn.createStatement())
+				Script script = filesContent.get(found);
+				String query = script.getContent();
+				if(query != null && !query.isEmpty())
 				{
-					statement.execute(query);	
+					System.out.print("- executing '"+found+"'...");
+					try(Statement statement = conn.createStatement())
+					{
+						statement.execute(query);	
+					}
+					System.out.println("ok");	
 				}
-				System.out.println("ok");
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				System.err.println("failed");
 				System.err.println("ERROR at "+found);
 				System.err.println(e.getMessage());
@@ -147,16 +149,13 @@ public class ExecuteCommand {
 		}
 	}
 
-	private void loadFile(File file, HashSet<String> filesSet, Graph<String, DefaultEdge> dependencies, Stack<String> filesStack, HashMap<String, Script> filesContent) 
+	private void loadFile(File file, HashSet<String> filesSet, Graph<String, DefaultEdge> dependencies, HashMap<String, Script> filesContent) 
 			throws IOException, CycleFoundExcpetion, SecurityException {
 		if(!file.isFile())
 			return;
 		String path = file.getCanonicalFile().getAbsolutePath();
 	    if(filesSet.contains(path))
 	    	return;
-	    if(filesStack.contains(path))
-	    	throw new CycleFoundExcpetion(filesStack);
-	    filesStack.push(path);
 	    filesSet.add(path);
 	    dependencies.addVertex(file.getCanonicalFile().getAbsolutePath());
 	
@@ -183,10 +182,10 @@ public class ExecuteCommand {
 	    });
 	    String content = builder.toString();
 	    Script script = new Script(file, content);
-	    filesContent.put(file.getAbsolutePath(), script);
+	    filesContent.put(path, script);
 	    
 	    for(File importFile: importedFiles)
-	    	loadFile(importFile, filesSet, dependencies, filesStack, filesContent);
+	    	loadFile(importFile, filesSet, dependencies, filesContent);
 	}
 
 	private static String readPwd() throws IOException {
