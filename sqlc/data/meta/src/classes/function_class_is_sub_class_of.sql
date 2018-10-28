@@ -16,7 +16,7 @@ BEGIN
 	IF given_class_id = given_super_class_id THEN
 		RETURN TRUE;
 	END IF;
-    SET loaded = class_get_all_sub_types(given_super_class_id);
+    CALL class_get_all_sub_types(given_super_class_id);
 	SELECT TRUE FROM temp_sub_types WHERE id=given_class_id INTO found;
 	RETURN loaded AND found;
 END;

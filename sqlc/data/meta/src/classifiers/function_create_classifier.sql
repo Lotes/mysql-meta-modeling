@@ -21,12 +21,12 @@ BEGIN
 	END IF;
 	
 	-- is name already assigned?
-	IF package_contains_name(given_parent_package_id, name) THEN
+	IF package_contains_name(given_parent_package_id, given_name) THEN
 		RETURN -1;
 	END IF;
 	
 	-- create named element
-	SET my_id = create_named_element(name, given_type);
+	SET my_id = create_named_element(given_name, given_type);
 
 	-- then the classifier
 	INSERT INTO classifiers (id, parent_package_id) VALUES(my_id, given_parent_package_id);

@@ -15,7 +15,7 @@ CREATE FUNCTION create_class (
 BEGIN
 	DECLARE my_id INT;
 
-	SET my_id = create_classifier(given_name, 'CLASS', given_parent_package);
+	SET my_id = create_classifier(given_name, 'CLASS', given_parent_package_id);
 	IF my_id <> -1 THEN
 		INSERT INTO classes (id, abstraction) VALUES(my_id, given_abstraction);
 	END IF;

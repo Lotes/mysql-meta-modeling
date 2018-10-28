@@ -7,19 +7,12 @@ CREATE VIEW view_classes AS
 SELECT 
 	ne.id,
 	ne.name,
-	te.type_id,
-	te.lower_bound,
-	te.upper_bound,
-	te.is_ordered,
-	te.is_unique,
-	r.abstraction
+	cs.abstraction
 FROM
 	named_elements ne,
-	typed_elements te,
-	structural_features sf,
-	classes r
+	classifiers c,
+	classes cs
 WHERE
-	ne.id = te.id 
-	AND te.id = sf.id
-	AND sf.id = r.id
+	ne.id = c.id 
+	AND c.id = cs.id
 ;

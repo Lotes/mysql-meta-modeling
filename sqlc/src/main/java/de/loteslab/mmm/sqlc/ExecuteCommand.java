@@ -1,18 +1,13 @@
 package de.loteslab.mmm.sqlc;
 
-import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,7 +15,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +22,6 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.builder.GraphBuilder;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import de.loteslab.mmm.sqlc.lang.Script;
@@ -136,16 +129,18 @@ public class ExecuteCommand {
 				if(script == null) {
 					throw new FileNotFoundException(found);
 				} else {
+					String foundPath = script.getFile().getCanonicalPath();
+					System.out.print("- executing '"+foundPath+"'...");
 					String query = script.getContent();
 					if(query != null && !query.isEmpty())
 					{
-						Path foundPath = script.getFile().toPath();
-						System.out.print("- executing '"+rootPath.relativize(foundPath)+"'...");
 						try(Statement statement = conn.createStatement())
 						{
 							statement.execute(query);	
 						}
 						System.out.println("ok");	
+					} else {
+						System.out.println("ack");
 					}
 				}
 			} catch (Exception e) {
@@ -174,31 +169,9 @@ public class ExecuteCommand {
 	        	File importFile = new File(file.getParentFile(), matcher.group(1).replaceAll("(\\\\|/)", File.separator)+".sql");
 	        	if(importFile.getName().equals("*.sql")) {
 	        		File folder = importFile.getParentFile();
-	        		for(File nextFile: folder.listFiles()) {
-	        			if(!nextFile.isFile())
-	        				continue;
-	        			if(!nextFile.getName().endsWith(".sql"))
-	        				continue;
-	        			importedFiles.add(nextFile);
-			        	String from;
-						try {
-							from = nextFile.getCanonicalFile().getAbsolutePath();
-						} catch (IOException e) {
-							from = nextFile.getAbsolutePath();
-						}
-			        	dependencies.addVertex(from);
-			        	dependencies.addEdge(from, path);
-	        		}
+	        		scanFolder(dependencies, path, importedFiles, folder);
 	        	} else {
-	        		importedFiles.add(importFile);
-		        	String from;
-					try {
-						from = importFile.getCanonicalFile().getAbsolutePath();
-					} catch (IOException e) {
-						from = importFile.getAbsolutePath();
-					}
-		        	dependencies.addVertex(from);
-		        	dependencies.addEdge(from, path);	
+	        		linkTo(dependencies, path, importedFiles, importFile);	
 	        	}
 	        } else {
 	        	builder.append(line);
@@ -211,6 +184,32 @@ public class ExecuteCommand {
 	    
 	    for(File importFile: importedFiles)
 	    	loadFile(importFile, filesSet, dependencies, filesContent);
+	}
+
+	private void scanFolder(Graph<String, DefaultEdge> dependencies, String path, LinkedList<File> importedFiles,
+			File folder) {
+		for(File nextFile: folder.listFiles()) {
+			if(nextFile.isFile()) {
+				if(!nextFile.getName().endsWith(".sql"))
+					continue;
+				linkTo(dependencies, path, importedFiles, nextFile);
+			} else if(nextFile.isDirectory()) {
+				scanFolder(dependencies, path, importedFiles, nextFile);
+			}
+		}
+	}
+
+	private void linkTo(Graph<String, DefaultEdge> dependencies, String path, LinkedList<File> importedFiles,
+			File importFile) {
+		importedFiles.add(importFile);
+		String from;
+		try {
+			from = importFile.getCanonicalFile().getAbsolutePath();
+		} catch (IOException e) {
+			from = importFile.getAbsolutePath();
+		}
+		dependencies.addVertex(from);
+		dependencies.addEdge(from, path);
 	}
 
 	private static String readPwd() throws IOException {

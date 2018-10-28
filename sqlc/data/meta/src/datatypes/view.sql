@@ -1,7 +1,8 @@
-# import "..\typed_elements\table"
-# import "..\named_elements\table"
-# import "..\structural_features\table"
-# import "table"
+#import "../typed_elements/table"
+#import "../named_elements/table"
+#import "../structural_features/table"
+#import "../attributes/table"
+#import "table"
 
 CREATE VIEW view_datatypes AS
 SELECT 

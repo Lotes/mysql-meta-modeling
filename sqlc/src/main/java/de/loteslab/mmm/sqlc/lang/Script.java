@@ -1,7 +1,6 @@
 package de.loteslab.mmm.sqlc.lang;
 
 import java.io.File;
-import java.util.HashSet;
 
 public class Script {
 	private File file;
