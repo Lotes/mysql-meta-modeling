@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.loteslab.mmm</groupId>
+  <artifactId>mysql-lang</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>mysql-lang</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+  	<target.jvm>1.8</target.jvm>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <antlr.version>4.7.1</antlr.version>
+    <junit.version>4.12</junit.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+		<groupId>org.antlr</groupId>
+		<artifactId>antlr4-runtime</artifactId>
+		<version>${antlr.version}</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>${junit.version}</version>
+	</dependency>
+  </dependencies>
+  
+  <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>${target.jvm}</source>
+					<target>${target.jvm}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>${antlr.version}</version>
+				<configuration>
+					<sourceDirectory>${basedir}/src/main/antlr4</sourceDirectory>
+					<grammars>MySqlLexer.g4,MySqlParser.g4</grammars>
+					<visitor>true</visitor>
+					<listener>true</listener>
+				</configuration>
+				<executions>
+					<execution>
+						<id>antlr</id>
+						<goals>
+							<goal>antlr4</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
