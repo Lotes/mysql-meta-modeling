@@ -1,0 +1,22 @@
+#import "function_is_class"
+#import "table_supertypes"
+#import "table"
+
+CREATE FUNCTION class_is_sub_class_of (
+		given_class_id INT,
+		given_super_class_id INT
+	)
+	RETURNS BOOL
+	COMMENT 'adds a new supertype to a class, returns true on success and false on error'
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	MODIFIES SQL DATA
+	SQL SECURITY DEFINER
+BEGIN
+	DECLARE my_id INT DEFAULT -1;
+	DECLARE my_super_type_id INT DEFAULT -1;
+
+	--TODO 
+
+	RETURN TRUE;
+END;

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;sqlc-lang/Hello.g4&apos; to &apos;TemplateLang.g4&apos;" description="Rename resource &apos;Hello.g4&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Hello.g4" name="TemplateLang.g4" stamp="1540403721110" updateReferences="true"/>
+</session>

@@ -1,0 +1,13 @@
+package de.loteslab.mmm.sqlc;
+
+import picocli.CommandLine;
+
+public class App 
+{
+    public static void main( String[] args)
+    {
+    	ExecuteCommand options = new ExecuteCommand();
+        CommandLine cli = new CommandLine(options);
+        cli.parse(args);
+    }
+}

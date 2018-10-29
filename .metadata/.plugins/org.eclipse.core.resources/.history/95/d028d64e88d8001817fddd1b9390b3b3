@@ -1,0 +1,28 @@
+package de.loteslab.mmm.sqlc.lang;
+
+import java.util.HashSet;
+
+import de.loteslab.mmm.sqlc.lang.MySqlParser.CopyCreateTableContext;
+
+public class NameTreeVisitor extends MySqlParserBaseVisitor<Integer> {
+	private HashSet<MySqlObject> imports = new HashSet<MySqlObject>();
+	private HashSet<MySqlObject> exports = new HashSet<MySqlObject>();
+	
+	@Override
+	public Integer visitCopyCreateTable(CopyCreateTableContext ctx) {
+		export(MySqlObjectType.TABLE, ctx.name.getText());
+		return 0;
+	}
+
+	private void export(MySqlObjectType type, String name) {
+		exports.add(MySqlObject.create(type, name));
+	}
+	
+	public Iterable<MySqlObject> getImports() {
+		return imports;
+	}
+
+	public Iterable<MySqlObject> getExports() {
+		return exports;
+	}
+}

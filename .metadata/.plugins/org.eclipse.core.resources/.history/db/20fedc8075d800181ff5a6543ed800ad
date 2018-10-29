@@ -1,0 +1,33 @@
+package de.loteslab.mmm.sqlc.lang;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.CharStream;
+
+import com.google.common.io.CharStreams;
+
+public class MySqlAnalyzer {
+	private static String readFile(String path) throws IOException 
+	{
+	  byte[] encoded = Files.readAllBytes(Paths.get(path));
+	  return new String(encoded, Charset.forName("UTF-8"));
+	}
+	
+	public static void main(String[] args) {
+		try {
+	        String input = readFile(args[0]);
+	        ANTLRInputStream stream = new ANTLRInputStream(input);
+	        MySqlLexer lexer = new MySqlLexer(stream);
+	        MySqlParser parser = new MySqlParser(new CommonTokenStream(lexer));
+	        parser.root(); 
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+}

@@ -1,0 +1,103 @@
+/**
+ * Define a grammar called Hello
+ */
+grammar Meta;
+
+translationUnit: 
+	classifier+
+;
+
+classifier:
+	(datatype | class) SEMICOLON
+;
+
+datatype:
+	'datatype' ID
+	LBRACE 
+		NATIVE STRING				
+	RBRACE
+;
+
+NATIVE: 'native';
+
+LBRACE: '{';
+RBRACE: '}';
+
+COLON: ':';
+SEMICOLON: ';';
+
+ID : [a-zA-Z_][a-zA-Z0-9_]*;             // match lower-case identifiers
+
+WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+
+BlockComment
+    :   '/*' .*? '*/'
+        -> skip
+    ;
+
+LineComment
+    :   '//' ~[\r\n]*
+        -> skip
+    ;
+    
+StringLiteral
+    :   EncodingPrefix? '"' SCharSequence? '"'
+    ;
+
+fragment
+EncodingPrefix
+    :   'u8'
+    |   'u'
+    |   'U'
+    |   'L'
+    ;
+
+fragment
+SCharSequence
+    :   SChar+
+    ;
+
+fragment
+SChar
+    :   ~["\\\r\n]
+    |   EscapeSequence
+    |   '\\\n'   // Added line
+    |   '\\\r\n' // Added line
+    ;
+    
+fragment
+EscapeSequence
+    :   SimpleEscapeSequence
+    |   OctalEscapeSequence
+    |   HexadecimalEscapeSequence
+    |   UniversalCharacterName
+    ;
+
+fragment
+SimpleEscapeSequence
+    :   '\\' ['"?abfnrtv\\]
+    ;
+
+fragment
+OctalEscapeSequence
+    :   '\\' OctalDigit
+    |   '\\' OctalDigit OctalDigit
+    |   '\\' OctalDigit OctalDigit OctalDigit
+    ;
+
+fragment
+HexadecimalEscapeSequence
+    :   '\\x' HexadecimalDigit+
+    ;
+   
+fragment
+UniversalCharacterName
+    :   '\\u' HexQuad
+    |   '\\U' HexQuad HexQuad
+    ;
+
+fragment
+HexQuad
+    :   HexadecimalDigit HexadecimalDigit HexadecimalDigit HexadecimalDigit
+    ;
+   

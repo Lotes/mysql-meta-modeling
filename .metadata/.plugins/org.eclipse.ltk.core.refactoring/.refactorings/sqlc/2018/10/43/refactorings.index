@@ -1,0 +1,55 @@
+1540321984088	Rename type 'Options'
+1540329781112	Delete element
+1540329893098	Rename resource 'test'
+1540471468906	Delete elements
+1540479048946	Encapsulate field 'imports'
+1540479060117	Encapsulate field 'exports'
+1540479108446	Encapsulate field 'file'
+1540479120285	Encapsulate field 'content'
+1540479437441	Move compilation units
+1540480482265	Move files
+1540480603746	Delete element
+1540482415484	Move files
+1540493945719	Extract method 'extracted'
+1540497094360	Delete element
+1540497096834	Delete element
+1540497927049	Rename type 'MySqlAnalyzerTests'
+1540498136841	Delete element
+1540498138948	Delete element
+1540553785006	Delete elements
+1540553798894	Delete elements
+1540553822761	Delete element
+1540644224879	Rename resource 'table-supertypes.sql'
+1540644870359	Delete element
+1540645135363	Delete elements
+1540645164637	Delete element
+1540645391770	Delete element
+1540661433402	Copy file
+1540661443511	Rename resource 'function_is_package.sql'
+1540661613828	Rename resource 'index.sql'
+1540661634113	Rename resource 'packages.sql'
+1540661851505	Rename resource 'create.sql'
+1540661862582	Move file
+1540661865796	Delete element
+1540672864282	Rename resource 'function_class_is_subclass_of.sql'
+1540674290678	Rename resource 'function_class_get_sub_types.sql'
+1540674691019	Delete element
+1540674725571	Delete element
+1540674728722	Delete element
+1540674731375	Delete element
+1540674735405	Delete element
+1540674738994	Delete element
+1540674742693	Delete element
+1540674745906	Delete element
+1540674749633	Delete element
+1540674753635	Delete element
+1540677338020	Copy file
+1540680125054	Extract method 'extracted'
+1540680586827	Extract method 'extracted'
+1540680634580	Delete element
+1540719228307	Rename resource 'function_class_add_supertype.sql'
+1540719243022	Rename resource 'table_supertypes.sql'
+1540758637863	Move file
+1540758660611	Rename resource 'JSON.g4'
+1540759023652	Delete elements
+1540759028475	Delete elements

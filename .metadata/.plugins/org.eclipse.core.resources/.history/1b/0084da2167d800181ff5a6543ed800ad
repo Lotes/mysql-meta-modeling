@@ -1,0 +1,5 @@
+package de.loteslab.mmm.sqlc.lang;
+
+public class NameTreeVisitor {
+
+}

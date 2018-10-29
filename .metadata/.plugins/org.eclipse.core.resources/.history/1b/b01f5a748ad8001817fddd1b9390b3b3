@@ -1,0 +1,17 @@
+package de.loteslab.mmm.sqlc.lang;
+
+import junit.framework.TestCase;
+
+public class MySqlAnalyzerTests extends TestCase {
+	private MySqlAnalyzer analyzer;
+	
+	@Override
+	protected void setUp() throws Exception {
+		analyzer = new MySqlAnalyzer();
+	}
+	
+	public void testable() throws Exception {
+		analyzer.scanRaw("CREATE TABLE abbb (id INT)");
+		assertTrue(analyzer.getExports().contains(MySqlObject.create(MySqlObjectType.TABLE, "AABB")));
+	}
+}

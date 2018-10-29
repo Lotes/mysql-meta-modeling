@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Start MySQL docker
+Comment=Starts MySQL database
+Exec=/home/markus/Projekte/00_ACTIVE/mysql-meta-modeling/run-db.sh
+Icon=/home/user/youricon.gif
+Terminal=false
+Type=Application

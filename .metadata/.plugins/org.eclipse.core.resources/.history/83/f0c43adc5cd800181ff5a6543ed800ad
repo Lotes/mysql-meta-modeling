@@ -1,0 +1,17 @@
+package de.loteslab.mmm.sqlc;
+
+public class MySqlObject {
+	private MySqlObjectType type;
+	private String name;
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof MySqlObject)
+		{
+			MySqlObject other = (MySqlObject)obj;
+			return ;	
+		}
+		else
+			return false;
+	}
+}

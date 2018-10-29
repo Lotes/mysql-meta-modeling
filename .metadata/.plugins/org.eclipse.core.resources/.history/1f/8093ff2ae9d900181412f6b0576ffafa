@@ -1,0 +1,6 @@
+CREATE TABLE named_elements (
+	id INT NOT NULL AUTO_INCREMENT,
+	name VARCHAR(50) NOT NULL,
+	type ENUM() NOT NULL,
+	PRIMARY KEY(id)
+);

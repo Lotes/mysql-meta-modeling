@@ -1,0 +1,7 @@
+package de.loteslab.mmm.sqlc.lang;
+
+import junit.framework.TestCase;
+
+public class MySqlAnalyzerTests extends TestCase {
+
+}

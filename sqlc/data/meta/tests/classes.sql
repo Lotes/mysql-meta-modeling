@@ -1,4 +1,7 @@
 #import "packages"
+#import "../src/classes/function_create_class"
+#import "../src/classes/function_is_class"
+#import "../src/classes/function_class_add_super_type"
 
 CALL assert_is_false(is_class(1234567890), 'Random number is not a class.');
 
@@ -27,3 +30,4 @@ CALL assert_is_true(class_add_super_type(@bird_id, @animal_id), "Bird must be a 
 CALL assert_is_true(class_add_super_type(@student_id, @human_id), "Student must be a sub class of Human.");
 CALL assert_is_true(class_add_super_type(@employee_id, @human_id), "Employee must be a sub class of Human.");
 CALL assert_is_true(class_add_super_type(@animal_id, @creature_id), "Animal must be a sub class of Creature.");
+

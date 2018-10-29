@@ -109,7 +109,7 @@ public class ExecuteCommand {
 		HashMap<String, Script> filesContent = new HashMap<String, Script>();
 		HashSet<String> filesSet = new HashSet<String>();
 		Graph<String, DefaultEdge> dependencies = new DefaultDirectedGraph<>(DefaultEdge.class);
-		Path rootPath = file.getParentFile().toPath();
+		Path rootPath = file.getParentFile().getCanonicalFile().toPath();
 		
 		loadFile(file, filesSet, dependencies, filesContent);
 		
@@ -130,21 +130,22 @@ public class ExecuteCommand {
 					throw new FileNotFoundException(found);
 				} else {
 					String foundPath = script.getFile().getCanonicalPath();
-					System.out.print("- executing '"+foundPath+"'...");
+					Path p = new File(foundPath).toPath();
+					System.out.print("- executing '"+rootPath.relativize(p).toString()+"'... ");
 					String query = script.getContent();
 					if(query != null && !query.isEmpty())
 					{
 						try(Statement statement = conn.createStatement())
 						{
 							statement.execute(query);	
-						}
-						System.out.println("ok");	
-					} else {
-						System.out.println("ack");
+						}	
 					}
+					System.out.println("ok");
+					
 				}
 			} catch (Exception e) {
 				System.err.println("failed");
+                System.err.println("on file '"+found+"'");
 				e.printStackTrace(System.err);
 			}
 		}

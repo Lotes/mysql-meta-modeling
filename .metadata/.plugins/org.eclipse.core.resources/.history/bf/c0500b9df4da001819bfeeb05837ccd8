@@ -1,0 +1,73 @@
+grammar MacroLang;
+
+start:
+	'#' (Import | Define | Each | EachEnd)
+    ;
+
+Import:
+	'import' STRING
+;
+
+Define:
+	'define' FQN JsonObject
+;
+
+Each:
+	'each' list=FQN 'as' var=ID ('at' index=ID)? ':'
+;
+
+JsonObject:
+
+;
+
+EachEnd:
+	'endeach'
+;
+
+FQN:
+	ID ('.' ID)*
+;
+
+ID:
+	[a-zA-Z_][a-zA-Z_0-9]*
+;
+
+STRING
+   : '"' (ESC | SAFECODEPOINT)* '"'
+   ;
+
+
+fragment ESC
+   : '\\' (["\\/bfnrt] | UNICODE)
+   ;
+
+
+fragment UNICODE
+   : 'u' HEX HEX HEX HEX
+   ;
+
+
+fragment HEX
+   : [0-9a-fA-F]
+   ;
+
+
+fragment SAFECODEPOINT
+   : ~ ["\\\u0000-\u001F]
+   ;
+
+BlockComment:   
+	'/*' .*? '*/' -> skip
+    ;
+
+LineComment:   
+	'--' ~[\r\n]* -> skip
+	;
+
+WS: 
+	[ \t] + -> skip
+	;
+	
+NL:
+	'\r' '\n'?|'\n'
+	;

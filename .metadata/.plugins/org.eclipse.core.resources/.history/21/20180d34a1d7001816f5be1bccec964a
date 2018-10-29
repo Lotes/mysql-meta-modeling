@@ -1,0 +1,15 @@
+﻿#import "table"
+
+CREATE FUNCTION create_named_element (
+		given_name VARCHAR(50)
+	)
+	RETURNS INT
+	COMMENT 'creates a new named element'
+	LANGUAGE
+	NOT DETERMINISTIC
+	MODIFIES DATA
+ SECURITY DEFINER
+BEGIN
+	INSERT INTO named_elements (name) VALUE (given_name);
+	RETURN LAST_INSERT_ID();
+END;

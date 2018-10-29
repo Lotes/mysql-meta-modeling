@@ -1,0 +1,13 @@
+T__0=1
+Import=2
+Define=3
+Each=4
+ID=5
+STRING=6
+BlockComment=7
+LineComment=8
+WS=9
+NL=10
+'#'=1
+'define'=3
+'each'=4

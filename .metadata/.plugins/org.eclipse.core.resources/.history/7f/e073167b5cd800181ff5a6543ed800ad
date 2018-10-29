@@ -1,0 +1,5 @@
+package de.loteslab.mmm.sqlc;
+
+public class MySqlObject {
+
+}

@@ -1,0 +1,22 @@
+package de.loteslab.mmm.sqlc.lang;
+
+import java.io.FileInputStream;
+
+import org.antlr.runtime.ANTLRInputStream;
+
+public class MySqlAnalyzer {
+	public static void main(String[] args) {
+		try {
+	        ANTLRInputStream input = new ANTLRInputStream(
+	            new FileInputStream(args[0]));    
+	        MySqlLexer lexer = new MySqlLexer(input);
+	        GYOOParser parser = new GYOOParser(new CommonTokenStream(lexer));
+	        parser.addParseListener(new MyListener());
+
+	        // Start parsing
+	        parser.program(); 
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+}

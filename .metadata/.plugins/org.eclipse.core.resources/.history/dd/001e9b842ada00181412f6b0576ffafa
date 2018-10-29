@@ -1,0 +1,19 @@
+#import "function_is_class"
+#import "table_supertypes"
+#import "table"
+
+CREATE FUNCTION class_get_sub_types (
+		given_class_id INT
+	)
+	RETURNS BOOL
+	COMMENT 'returns all sub types in a temporary table `temp_sub_types`'
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	MODIFIES SQL DATA
+	SQL SECURITY DEFINER
+BEGIN
+	
+
+
+	RETURN TRUE;
+END;

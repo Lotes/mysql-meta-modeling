@@ -1,0 +1,9 @@
+package de.loteslab.mmm.sqlc;
+
+import java.io.File;
+
+public class Script {
+	private File file;
+	private String content;
+	
+}
