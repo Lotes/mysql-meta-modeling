@@ -1,7 +1,6 @@
 package de.loteslab.mmm.mysqllang.impl;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 import de.loteslab.mmm.mysqllang.ISymbol;
 import de.loteslab.mmm.mysqllang.ISymbolFactory;
@@ -13,30 +12,21 @@ public class SymbolFactory implements ISymbolFactory {
 	
 	private static class SymbolType implements ISymbolType {
 		private String name;
-		private ISymbolType superType;
 		
-		public SymbolType(String name, ISymbolType superType) {
+		public SymbolType(String name) {
 			this.name = SymbolFactory.normalizeName(name);
-			this.superType = superType;
 		}
 		
 		@Override
 		public String getName() {
 			return name;
 		}
-
-		@Override
-		public ISymbolType getSuperType() {
-			return superType;
-		}
-		
 		@Override
 		public boolean equals(Object obj) {
 			if(!(obj instanceof ISymbolType))
 				return false;
 			ISymbolType other = (ISymbolType)obj;
-			return other.getName().equals(getName()) 
-					&& Objects.equals(other.getSuperType(), getSuperType());
+			return other.getName().equals(getName());
 		}
 		
 		@Override
@@ -72,10 +62,10 @@ public class SymbolFactory implements ISymbolFactory {
 	}
 	
 	@Override
-	public ISymbolType createSymbolType(String name, ISymbolType superType) {
+	public ISymbolType createSymbolType(String name) {
 		String key = normalizeName(name);
 		if(!types.containsKey(key))
-			types.put(key, new SymbolType(name, superType));
+			types.put(key, new SymbolType(name));
 		return types.get(key);
 	}
 
