@@ -1,9 +1,0 @@
-package de.loteslab.mmm.sqlc;
-
-public class App 
-{
-    public static void main( String[] args )
-    {
-        
-    }
-}

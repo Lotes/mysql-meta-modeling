@@ -1,5 +1,0 @@
-# import "table"
-# import "view"
-# import "function_is_package"
-# import "function_package_contains_name"
-# import "function_create_package"

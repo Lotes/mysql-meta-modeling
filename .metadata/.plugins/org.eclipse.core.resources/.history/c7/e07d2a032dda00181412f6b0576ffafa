@@ -1,8 +1,0 @@
-#import "table"
-#import "view"
-#import "table_supertypes"
-#import "function_is_class"
-#import "function_create_class"
-#import "function_class_add_super_type"
-#import "function_class_get_all_super_types"
-#import "function_class_is_sub_class_of"

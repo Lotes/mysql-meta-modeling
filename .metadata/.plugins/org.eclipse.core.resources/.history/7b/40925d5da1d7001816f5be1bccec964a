@@ -1,5 +1,0 @@
-﻿#import "table.sql"
-#import "view.sql"
-#import "function_is_package.sql"
-#import "function_package_contains_name.sql"
-#import "function_create_package.sql"

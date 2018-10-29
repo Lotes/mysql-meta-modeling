@@ -1,5 +1,0 @@
-#import "table"
-#import "view"
-#import "table_supertypes"
-#import "function_is_class"
-#import "function_create_class"

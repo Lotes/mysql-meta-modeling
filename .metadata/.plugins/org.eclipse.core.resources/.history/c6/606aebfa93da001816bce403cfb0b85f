@@ -1,7 +1,0 @@
-#import "packages"
-
-CALL assert_is_false(is_class(1234567890), 'Random number is not a class.');
-
-SET @creature_id = create_class('Creature', 'CLASS', @package_id);
-CALL assert_is_true(is_class(@creature_id), 'Newly created class must be a class.');
-
