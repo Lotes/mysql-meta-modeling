@@ -1,4 +1,4 @@
 --input
 SELECT * FROM table;
 --output
-IMPORTS table:TABLE_OR_VIEW
+IMPORTS table:TABLE_LIKE

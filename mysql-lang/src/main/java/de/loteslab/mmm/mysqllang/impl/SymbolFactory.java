@@ -1,14 +1,21 @@
 package de.loteslab.mmm.mysqllang.impl;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
 import de.loteslab.mmm.mysqllang.ISymbol;
 import de.loteslab.mmm.mysqllang.ISymbolFactory;
+import de.loteslab.mmm.mysqllang.ISymbolNameNormalizer;
 import de.loteslab.mmm.mysqllang.ISymbolType;
 
-public class SymbolFactory implements ISymbolFactory {
+public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
+	private static final String PREFIX_CURRENT_DB = "<current_db>.";
+
 	private HashMap<String, ISymbolType> types = new HashMap<String, ISymbolType>();
 	private HashMap<ISymbolType, HashMap<String, ISymbol>> symbols = new HashMap<ISymbolType, HashMap<String, ISymbol>>();
+	
+	private HashMap<ISymbolType, Function<String, String>> normalizers;
+	private ISymbolType symbolTypeTableLike;
 	
 	private static class SymbolType implements ISymbolType {
 		private String name;
@@ -34,11 +41,11 @@ public class SymbolFactory implements ISymbolFactory {
 			return name.hashCode();
 		}
 	}
-	private static class Symbol implements ISymbol {
+	private class Symbol implements ISymbol {
 		private String name;
 		private ISymbolType type;
 		public Symbol(String name, ISymbolType type) {
-			this.name = SymbolFactory.normalizeName(name);
+			this.name = SymbolFactory.this.normalize(type, name);
 			this.type = type;
 		}
 		
@@ -61,6 +68,17 @@ public class SymbolFactory implements ISymbolFactory {
 		}
 	}
 	
+	public SymbolFactory() {
+		symbolTypeTableLike = createSymbolType(SymbolNames.TABLE_LIKE);
+		
+		normalizers = new HashMap<ISymbolType, Function<String, String>>();
+		normalizers.put(symbolTypeTableLike, str -> normalizeTableName(str));
+	}
+	
+	public static String normalizeName(String name) {
+		return name.toLowerCase();
+	}
+
 	@Override
 	public ISymbolType createSymbolType(String name) {
 		String key = normalizeName(name);
@@ -81,7 +99,16 @@ public class SymbolFactory implements ISymbolFactory {
 		return map.get(key);
 	}
 
-	private static String normalizeName(String name) {
-		return name.toLowerCase();
+	private String normalizeTableName(String text) {
+		if(!text.contains("."))
+			text = PREFIX_CURRENT_DB+text;
+		return text.toLowerCase();
+	}
+
+	@Override
+	public String normalize(ISymbolType type, String name) {
+		if(normalizers.containsKey(type))
+			return normalizers.get(type).apply(name);
+		return null;
 	}
 }

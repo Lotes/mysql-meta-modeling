@@ -114,7 +114,7 @@ public class AnalyzerTest {
 		final String patternInput = "^--input$";
 		final String patternOutput = "^--output$";
 		final String patternSymbol = "^(imports|exports) ([a-zA-Z\\._0-9]+):([a-zA-Z_0-9]+)$";
-		final Pattern patternSymbolCompiled = Pattern.compile(patternSymbol);
+		final Pattern patternSymbolCompiled = Pattern.compile(patternSymbol, Pattern.CASE_INSENSITIVE);
 		
 		State state = State.EMPTY;
 		int lineNumber = 1;

@@ -55,7 +55,6 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>antlr</id>
 						<goals>
 							<goal>antlr4</goal>
 						</goals>

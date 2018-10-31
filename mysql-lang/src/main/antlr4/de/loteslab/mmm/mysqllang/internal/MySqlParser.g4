@@ -31,12 +31,21 @@ options { tokenVocab=MySqlLexer; }
 // Top Level Description
 
 root
-    : sqlStatements? MINUSMINUS? EOF
+    : stmts=sqlStatements? MINUSMINUS? EOF
     ;
 
 sqlStatements
-    : (sqlStatement MINUSMINUS? SEMI | emptyStatement)*
-    (sqlStatement (MINUSMINUS? SEMI)? | emptyStatement)
+    : nonLasts+=nonLastStatement* last=lastSqlStatement
+    ;
+    
+nonLastStatement
+    : stmt=sqlStatement MINUSMINUS? SEMI         #nonLastStatementSql 
+    | emptyStatement                             #nonLastStatementEmpty     
+    ;
+    
+lastSqlStatement
+    : stmt=sqlStatement (MINUSMINUS? SEMI)?      #lastStatementSql
+    | emptyStatement                             #lastStatementEmpty
     ;
 
 sqlStatement
@@ -139,7 +148,7 @@ createIndex
       intimeAction=(ONLINE | OFFLINE)?
       indexCategory=(UNIQUE | FULLTEXT | SPATIAL)?
       INDEX uid indexType?
-      ON tableName indexColumnNames
+      ON table=tableName indexColumnNames
       indexOption*
       (
         ALGORITHM '='? algType=(DEFAULT | INPLACE | COPY)
@@ -1840,7 +1849,7 @@ fullId
     ;
 
 tableName
-    : fullId
+    : name=fullId
     ;
 
 fullColumnName
