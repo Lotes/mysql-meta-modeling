@@ -30,35 +30,35 @@ options { tokenVocab=MySqlLexer; }
 
 // Top Level Description
 
-root
+root //ok
     : stmts=sqlStatements? MINUSMINUS? EOF
     ;
 
-sqlStatements
+sqlStatements //ok
     : nonLasts+=nonLastStatement* last=lastSqlStatement
     ;
     
-nonLastStatement
+nonLastStatement //ok
     : stmt=sqlStatement MINUSMINUS? SEMI         #nonLastStatementSql 
     | emptyStatement                             #nonLastStatementEmpty     
     ;
     
-lastSqlStatement
+lastSqlStatement //ok
     : stmt=sqlStatement (MINUSMINUS? SEMI)?      #lastStatementSql
     | emptyStatement                             #lastStatementEmpty
     ;
 
-sqlStatement
+sqlStatement //ok
     : ddlStatement | dmlStatement | transactionStatement
     | replicationStatement | preparedStatement
     | administrationStatement | utilityStatement
     ;
 
-emptyStatement
+emptyStatement //ok
     : SEMI
     ;
 
-ddlStatement
+ddlStatement //ok
     : createDatabase | createEvent | createIndex
     | createLogfileGroup | createProcedure | createFunction
     | createServer | createTable | createTablespaceInnodb
@@ -73,21 +73,21 @@ ddlStatement
     | renameTable | truncateTable
     ;
 
-dmlStatement
+dmlStatement //ok
     : selectStatement | insertStatement | updateStatement
     | deleteStatement | replaceStatement | callStatement
     | loadDataStatement | loadXmlStatement | doStatement
     | handlerStatement
     ;
 
-transactionStatement
+transactionStatement //ok
     : startTransaction
     | beginWork | commitWork | rollbackWork
     | savepointStatement | rollbackStatement
     | releaseStatement | lockTables | unlockTables
     ;
 
-replicationStatement
+replicationStatement //ok
     : changeMaster | changeReplicationFilter | purgeBinaryLogs
     | resetMaster | resetSlave | startSlave | stopSlave
     | startGroupReplication | stopGroupReplication
@@ -95,20 +95,20 @@ replicationStatement
     | xaCommitWork | xaRollbackWork | xaRecoverWork
     ;
 
-preparedStatement
+preparedStatement //ok
     : prepareStatement | executeStatement | deallocatePrepare
     ;
 
 // remark: NOT INCLUDED IN sqlStatement, but include in body
 //  of routine's statements
-compoundStatement
+compoundStatement //ok
     : blockStatement
     | caseStatement | ifStatement | leaveStatement
     | loopStatement | repeatStatement | whileStatement
     | iterateStatement | returnStatement | cursorStatement
     ;
 
-administrationStatement
+administrationStatement //ok
     : alterUser | createUser | dropUser | grantStatement
     | grantProxy | renameUser | revokeStatement
     | revokeProxy | analyzeTable | checkTable
@@ -120,7 +120,7 @@ administrationStatement
     | shutdownStatement
     ;
 
-utilityStatement
+utilityStatement //ok
     : simpleDescribeStatement | fullDescribeStatement
     | helpStatement | useStatement
     ;
@@ -130,24 +130,24 @@ utilityStatement
 
 //    Create statements
 
-createDatabase
+createDatabase //ok
     : CREATE dbFormat=(DATABASE | SCHEMA)
-      ifNotExists? uid createDatabaseOption*
+      ifNotExists? name=uid createDatabaseOption*
     ;
 
-createEvent
-    : CREATE ownerStatement? EVENT ifNotExists? fullId
+createEvent //ok
+    : CREATE owner=ownerStatement? EVENT ifNotExists? name=fullId
       ON SCHEDULE scheduleExpression
       (ON COMPLETION NOT? PRESERVE)? enableType?
       (COMMENT STRING_LITERAL)?
-      DO routineBody
+      DO body=routineBody
     ;
 
-createIndex
+createIndex //ok
     : CREATE
       intimeAction=(ONLINE | OFFLINE)?
       indexCategory=(UNIQUE | FULLTEXT | SPATIAL)?
-      INDEX uid indexType?
+      INDEX id=uid indexType?
       ON table=tableName indexColumnNames
       indexOption*
       (
@@ -157,8 +157,8 @@ createIndex
       )?
     ;
 
-createLogfileGroup
-    : CREATE LOGFILE GROUP uid
+createLogfileGroup //ok
+    : CREATE LOGFILE GROUP id=uid
       ADD UNDOFILE undoFile=STRING_LITERAL
       (INITIAL_SIZE '='? initSize=fileSizeLiteral)?
       (UNDO_BUFFER_SIZE '='? undoSize=fileSizeLiteral)?
@@ -169,45 +169,46 @@ createLogfileGroup
       ENGINE '='? engineName
     ;
 
-createProcedure
-    : CREATE ownerStatement?
-    PROCEDURE fullId
+createProcedure //ok
+    : CREATE owner=ownerStatement?
+    PROCEDURE name=fullId
       '(' procedureParameter? (',' procedureParameter)* ')'
       routineOption*
-    routineBody
+    body=routineBody
     ;
 
-createFunction
-    : CREATE ownerStatement?
-    FUNCTION fullId
+createFunction //ok
+    : CREATE owner=ownerStatement?
+    FUNCTION name=fullId
       '(' functionParameter? (',' functionParameter)* ')'
       RETURNS dataType
       routineOption*
-    routineBody
+    body=routineBody
     ;
 
-createServer
-    : CREATE SERVER uid
+createServer //ok
+    : CREATE SERVER name=uid
     FOREIGN DATA WRAPPER wrapperName=(MYSQL | STRING_LITERAL)
     OPTIONS '(' serverOption (',' serverOption)* ')'
     ;
 
 createTable
     : CREATE TEMPORARY? TABLE ifNotExists?
-       tableName
-       (
-         LIKE tableName
-         | '(' LIKE parenthesisTable=tableName ')'
-       )                                                            #copyCreateTable
+       name=tableName original=likeTable   #createTableLike
     | CREATE TEMPORARY? TABLE ifNotExists?
-       tableName createDefinitions?
+       name=tableName createDefinitions?
        ( tableOption (','? tableOption)* )?
        partitionDefinitions? keyViolate=(IGNORE | REPLACE)?
-       AS? selectStatement                                          #queryCreateTable
+       AS? selectStatement                 #createTableSelect                                         
     | CREATE TEMPORARY? TABLE ifNotExists?
        tableName createDefinitions
        ( tableOption (','? tableOption)* )?
-       partitionDefinitions?                                        #columnCreateTable
+       partitionDefinitions?               #createTableNormal
+    ;
+
+likeTable: //ok: SymbolsVisitor
+    LIKE name=tableName            #likeTableWithoutParentheses
+    | '(' LIKE name=tableName ')'  #likeTableWithParentheses
     ;
 
 createTablespaceInnodb
@@ -254,13 +255,22 @@ createView
 
 // details
 
-createDatabaseOption
+createDatabaseOption //ignore
     : DEFAULT? (CHARACTER SET | CHARSET) '='? charsetName
     | DEFAULT? COLLATE '='? collationName
     ;
 
-ownerStatement
-    : DEFINER '=' (userName | CURRENT_USER ( '(' ')')?)
+ownerStatement //ok: SymbolsVisitor
+    : DEFINER '=' id=userId
+    ;
+
+userId://ok: SymbolsVisitor
+    userName 
+    | currentUser
+    ;
+
+currentUser: //ok: SymbolsVisitor
+    CURRENT_USER ( '(' ')')?
     ;
 
 scheduleExpression
@@ -287,7 +297,7 @@ intervalExpr
     : '+' INTERVAL (decimalLiteral | expression) intervalType
     ;
 
-intervalType
+intervalType //ignore
     : intervalTypeBase
     | YEAR | YEAR_MONTH | DAY_HOUR | DAY_MINUTE
     | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
@@ -295,11 +305,11 @@ intervalType
     | HOUR_MICROSECOND | DAY_MICROSECOND
     ;
 
-enableType
+enableType //ignore
     : ENABLE | DISABLE | DISABLE ON SLAVE
     ;
 
-indexType
+indexType //ignore
     : USING (BTREE | HASH)
     ;
 
@@ -329,14 +339,14 @@ routineOption
     | SQL SECURITY context=(DEFINER | INVOKER)                      #routineSecurity
     ;
 
-serverOption
+serverOption //ignore
     : HOST STRING_LITERAL
-    | DATABASE STRING_LITERAL
-    | USER STRING_LITERAL
-    | PASSWORD STRING_LITERAL
-    | SOCKET STRING_LITERAL
-    | OWNER STRING_LITERAL
-    | PORT decimalLiteral
+    | DATABASE STRING_LITERAL       
+    | USER STRING_LITERAL      
+    | PASSWORD STRING_LITERAL       
+    | SOCKET STRING_LITERAL         
+    | OWNER STRING_LITERAL     
+    | PORT decimalLiteral           
     ;
 
 createDefinitions
@@ -1325,8 +1335,8 @@ deallocatePrepare
 
 // Compound Statements
 
-routineBody
-    : blockStatement | sqlStatement
+routineBody //ok
+    : blockStatement | procedureSqlStatement
     ;
 
 // details
@@ -1844,8 +1854,8 @@ describeObjectClause
 
 //    DB Objects
 
-fullId
-    : uid (DOT_ID | '.' uid)?
+fullId //ok: TextVisitor
+    : first=uid (DOT_ID | '.' last=uid)?
     ;
 
 tableName
@@ -1860,7 +1870,7 @@ indexColumnName
     : uid ('(' decimalLiteral ')')? sortType=(ASC | DESC)?
     ;
 
-userName
+userName //ok: Symbol- and TextVisitor
     : STRING_USER_NAME | ID;
 
 mysqlVariable
@@ -1907,14 +1917,14 @@ authPlugin
     : uid | STRING_LITERAL
     ;
 
-uid
+uid //ok:TextVisitor
     : simpleId
     //| DOUBLE_QUOTE_ID
     | REVERSE_QUOTE_ID
     | CHARSET_REVERSE_QOUTE_STRING
     ;
 
-simpleId
+simpleId //ignore
     : ID
     | charsetNameBase
     | transactionLevelBase
@@ -1926,9 +1936,9 @@ simpleId
     | functionNameBase
     ;
 
-dottedId
-    : DOT_ID
-    | '.' uid
+dottedId //ok:TextVisitor
+    : id=DOT_ID           #dottedIdLiteral
+    | '.' id=uid          #dottedIdUid
     ;
 
 
@@ -2069,7 +2079,7 @@ defaultValue
     | currentTimestamp (ON UPDATE currentTimestamp)?
     ;
 
-currentTimestamp
+currentTimestamp //ignore
     :
     (
       (CURRENT_TIMESTAMP | LOCALTIME | LOCALTIMESTAMP) ('(' decimalLiteral? ')')?
@@ -2081,10 +2091,10 @@ expressionOrDefault
     : expression | DEFAULT
     ;
 
-ifExists
+ifExists //ignore
     : IF EXISTS;
 
-ifNotExists
+ifNotExists //ignore
     : IF NOT EXISTS;
 
 
@@ -2290,24 +2300,24 @@ expressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 
-unaryOperator
+unaryOperator  //ignore
     : '!' | '~' | '+' | '-' | NOT
     ;
 
-comparisonOperator
+comparisonOperator //ignore
     : '=' | '>' | '<' | '<' '=' | '>' '='
     | '<' '>' | '!' '=' | '<' '=' '>'
     ;
 
-logicalOperator
+logicalOperator //ignore
     : AND | '&' '&' | XOR | OR | '|' '|'
     ;
 
-bitOperator
+bitOperator //ignore
     : '<' '<' | '>' '>' | '&' | '^' | '|'
     ;
 
-mathOperator
+mathOperator //ignore
     : '*' | '/' | '%' | DIV | MOD | '+' | '-' | '--'
     ;
 
@@ -2315,7 +2325,7 @@ mathOperator
 //    Simple id sets
 //     (that keyword, which can be id)
 
-charsetNameBase
+charsetNameBase //ignore
     : ARMSCII8 | ASCII | BIG5 | CP1250 | CP1251 | CP1256 | CP1257
     | CP850 | CP852 | CP866 | CP932 | DEC8 | EUCJPMS | EUCKR
     | GB2312 | GBK | GEOSTD8 | GREEK | HEBREW | HP8 | KEYBCS2
@@ -2324,25 +2334,25 @@ charsetNameBase
     | UTF16LE | UTF32 | UTF8 | UTF8MB3 | UTF8MB4
     ;
 
-transactionLevelBase
+transactionLevelBase //ignore
     : REPEATABLE | COMMITTED | UNCOMMITTED | SERIALIZABLE
     ;
 
-privilegesBase
+privilegesBase  //ignore
     : TABLES | ROUTINE | EXECUTE | FILE | PROCESS
     | RELOAD | SHUTDOWN | SUPER | PRIVILEGES
     ;
 
-intervalTypeBase
+intervalTypeBase //ignore
     : QUARTER | MONTH | DAY | HOUR
     | MINUTE | WEEK | SECOND | MICROSECOND
     ;
 
-dataTypeBase
+dataTypeBase //ignore
     : DATE | TIME | TIMESTAMP | DATETIME | YEAR | ENUM | TEXT
     ;
 
-keywordsCanBeId
+keywordsCanBeId //ignore
     : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
     | AT | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
     | AUTO_INCREMENT | AVG_ROW_LENGTH | BEGIN | BINLOG | BIT
@@ -2404,7 +2414,7 @@ keywordsCanBeId
     | WORK | WRAPPER | X509 | XA | XML
     ;
 
-functionNameBase
+functionNameBase //ignore
     : ABS | ACOS | ADDDATE | ADDTIME | AES_DECRYPT | AES_ENCRYPT
     | AREA | ASBINARY | ASIN | ASTEXT | ASWKB | ASWKT
     | ASYMMETRIC_DECRYPT | ASYMMETRIC_DERIVE

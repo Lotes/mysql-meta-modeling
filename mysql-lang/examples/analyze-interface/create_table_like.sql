@@ -1,0 +1,5 @@
+--input
+CREATE TABLE xxx LIKE yyy;
+--output
+EXPORTS xxx:TABLE_LIKE
+IMPORTS yyy:TABLE_LIKE

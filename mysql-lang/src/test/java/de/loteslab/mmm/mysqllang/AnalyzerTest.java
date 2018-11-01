@@ -3,7 +3,6 @@ package de.loteslab.mmm.mysqllang;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -113,7 +112,7 @@ public class AnalyzerTest {
 	private void readTestCase(ISymbolFactory symbolFactory, StringBuilder inputBuilder, List<Expectation> expectations) throws IOException, TestCaseSyntaxException {
 		final String patternInput = "^--input$";
 		final String patternOutput = "^--output$";
-		final String patternSymbol = "^(imports|exports) ([a-zA-Z\\._0-9]+):([a-zA-Z_0-9]+)$";
+		final String patternSymbol = "^(imports|exports) ([^:]+):([^:]+)$";
 		final Pattern patternSymbolCompiled = Pattern.compile(patternSymbol, Pattern.CASE_INSENSITIVE);
 		
 		State state = State.EMPTY;

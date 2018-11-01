@@ -1,0 +1,6 @@
+--input
+CREATE SERVER serv
+FOREIGN DATA WRAPPER mysql
+OPTIONS (USER 'Remote', HOST '198.51.100.106', DATABASE 'test');
+--output
+EXPORTS serv:SERVER
