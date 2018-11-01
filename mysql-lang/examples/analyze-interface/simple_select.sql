@@ -1,4 +1,4 @@
 --input
-SELECT * FROM table;
+SELECT * FROM t;
 --output
-IMPORTS table:TABLE_LIKE
+IMPORTS t:TABLE_LIKE

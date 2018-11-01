@@ -11,6 +11,7 @@ import de.loteslab.mmm.mysqllang.internal.MySqlParser.CurrentUserContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.LikeTableWithoutParenthesesContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.OwnerStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableNameContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TablesContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.UserIdContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.UserNameContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParserBaseVisitor;
@@ -71,5 +72,14 @@ public class SymbolsVisitor extends MySqlParserBaseVisitor<Iterable<ISymbol>> {
 	
 	private Iterable<ISymbol> takeFirst(ParserRuleContext ctx) {
 		return visit(ctx.children.get(0));
+	}
+	
+	@Override
+	public Iterable<ISymbol> visitTables(TablesContext ctx) {
+		LinkedList<ISymbol> symbols = new LinkedList<ISymbol>();
+		for(TableNameContext tbl: ctx.tbls)
+			for(ISymbol table: visit(tbl))
+				symbols.add(table);
+		return symbols;
 	}
 }

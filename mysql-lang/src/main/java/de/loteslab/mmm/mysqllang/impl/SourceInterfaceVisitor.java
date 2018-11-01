@@ -3,14 +3,31 @@ package de.loteslab.mmm.mysqllang.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.print.attribute.standard.MediaSize.Other;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 
 import de.loteslab.mmm.mysqllang.ISymbol;
 import de.loteslab.mmm.mysqllang.ISymbolFactory;
 import de.loteslab.mmm.mysqllang.ISymbolType;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.AdministrationStatementContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintAutoIncrementContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintCommentContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintDefaultContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintFormatContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintNullContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintPrimaryKeyContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintReferenceContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintStorageContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintUniqueKeyContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnDefinitionContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CompoundStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateDatabaseContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateDefinitionColumnContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateDefinitionConstraintContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateDefinitionContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateDefinitionsContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateEventContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateFunctionContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateIndexContext;
@@ -18,6 +35,7 @@ import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateLogfileGroupContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateProcedureContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateServerContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateTableLikeContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateTriggerContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DdlStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DmlStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.EmptyStatementContext;
@@ -28,10 +46,17 @@ import de.loteslab.mmm.mysqllang.internal.MySqlParser.NonLastStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.NonLastStatementEmptyContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.NonLastStatementSqlContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.PreparedStatementContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.ReferenceDefinitionContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ReplicationStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.RootContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.SqlStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.SqlStatementsContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableConstraintCheckContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableConstraintForeignKeyContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableConstraintPrimaryKeyContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableConstraintUniqueKeyContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TableNameContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.TablesContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.TransactionStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.UtilityStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParserBaseVisitor;
@@ -260,4 +285,134 @@ public class SourceInterfaceVisitor extends MySqlParserBaseVisitor<SourceInterfa
 			result.addImport(table);
 		return result;
 	}
+	
+	@Override
+	public SourceInterface visitCreateDefinitions(CreateDefinitionsContext ctx) {
+		SourceInterface result = new SourceInterface();
+		for(CreateDefinitionContext def: ctx.defs)
+			result.addInterface(visit(def));
+		return result;
+	}
+	
+	@Override
+	public SourceInterface visitCreateDefinitionColumn(CreateDefinitionColumnContext ctx) {
+		return visit(ctx.def);
+	}
+	
+	@Override
+	public SourceInterface visitColumnDefinition(ColumnDefinitionContext ctx) {
+		SourceInterface result = new SourceInterface();
+		for(ColumnConstraintContext colConstraint: ctx.constraints)
+			result.addInterface(visit(colConstraint));
+		return result;
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintAutoIncrement(ColumnConstraintAutoIncrementContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintComment(ColumnConstraintCommentContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintDefault(ColumnConstraintDefaultContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintFormat(ColumnConstraintFormatContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintNull(ColumnConstraintNullContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintPrimaryKey(ColumnConstraintPrimaryKeyContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintStorage(ColumnConstraintStorageContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintUniqueKey(ColumnConstraintUniqueKeyContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitColumnConstraintReference(ColumnConstraintReferenceContext ctx) {
+		return visit(ctx.refs);
+	}
+	
+	@Override
+	public SourceInterface visitReferenceDefinition(ReferenceDefinitionContext ctx) {
+		SourceInterface result = new SourceInterface();
+		for(ISymbol table: symbolVisitor.visit(ctx.name))
+			result.addImport(table);
+		return result;
+	}
+	
+	@Override
+	public SourceInterface visitCreateDefinitionConstraint(CreateDefinitionConstraintContext ctx) {
+		return visit(ctx.constraint);
+	}
+	
+	@Override
+	public SourceInterface visitTableConstraintCheck(TableConstraintCheckContext ctx) {
+		return visit(ctx.exp);
+	}
+	
+	@Override
+	public SourceInterface visitTableConstraintForeignKey(TableConstraintForeignKeyContext ctx) {
+		return visit(ctx.def);
+	}
+	
+	@Override
+	public SourceInterface visitTableConstraintPrimaryKey(TableConstraintPrimaryKeyContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitTableConstraintUniqueKey(TableConstraintUniqueKeyContext ctx) {
+		return new SourceInterface();
+	}
+	
+	@Override
+	public SourceInterface visitCreateTrigger(CreateTriggerContext ctx) {
+		SourceInterface result = new SourceInterface();
+		
+		String name = textVisitor.visit(ctx.thisTrigger);
+		ISymbolType type = factory.createSymbolType(SymbolFactory.TypeNames.TRIGGER);
+		ISymbol trigger = factory.createSymbol(name, type);
+		result.addExport(trigger);
+
+		ISymbolType typeTable = factory.createSymbolType(SymbolFactory.TypeNames.TABLE_LIKE);
+		String tableName = textVisitor.visit(ctx.table);
+		ISymbol table = factory.createSymbol(tableName, typeTable);
+		result.addImport(table);
+		
+		if(ctx.otherTrigger != null) {
+			String otherName = textVisitor.visit(ctx.otherTrigger);
+			ISymbol otherTrigger = factory.createSymbol(otherName, type);
+			result.addImport(otherTrigger);
+		}
+		
+		if(ctx.owner != null) {
+			for(ISymbol owner: symbolVisitor.visit(ctx.owner))
+				result.addImport(owner);
+		}
+		
+		result.addInterface(visit(ctx.body));
+		
+		return result;
+	}
+	
 }

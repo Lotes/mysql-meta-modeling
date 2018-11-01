@@ -19,6 +19,8 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		public static final String PROCEDURE = "PROCEDURE";
 		public static final String FUNCTION = "FUNCTION";
 		public static final String SERVER = "SERVER";
+		public static final String TABLESPACE = "TABLESPACE";
+		public static final String TRIGGER = "TRIGGER";
 	}
 	
 	private static final String PREFIX_CURRENT_DB = "<current_db>.";
@@ -36,7 +38,9 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 	private ISymbolType symbolTypeProcedure;
 	private ISymbolType symbolTypeFunction;
 	private ISymbolType symbolTypeServer;
-	
+	private ISymbolType symbolTypeTablespace;
+	private ISymbolType symbolTypeTrigger;
+
 	private static class SymbolType implements ISymbolType {
 		private String name;
 		
@@ -98,6 +102,8 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		symbolTypeProcedure = createSymbolType(TypeNames.PROCEDURE);
 		symbolTypeFunction = createSymbolType(TypeNames.FUNCTION);
 		symbolTypeServer = createSymbolType(TypeNames.SERVER);
+		symbolTypeTablespace = createSymbolType(TypeNames.TABLESPACE);
+		symbolTypeTrigger = createSymbolType(TypeNames.TRIGGER);
 		
 		normalizers = new HashMap<ISymbolType, Function<String, String>>();
 		normalizers.put(symbolTypeTableLike, str -> normalizeTableName(str));
@@ -109,6 +115,8 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		normalizers.put(symbolTypeProcedure, str -> normalizeFullId(str));
 		normalizers.put(symbolTypeFunction, str -> normalizeFullId(str));
 		normalizers.put(symbolTypeServer, str -> str.toLowerCase());
+		normalizers.put(symbolTypeTablespace, str -> str.toLowerCase());
+		normalizers.put(symbolTypeTrigger, str -> normalizeFullId(str));
 	}
 	
 	private String normalizeLogFileGroup(String str) {
