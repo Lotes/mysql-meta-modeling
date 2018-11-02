@@ -12,11 +12,6 @@ createTable
        partitionDefinitions?               #createTableNormal
     ;
 
-likeTable: //ok: SymbolsVisitor
-    LIKE name=tableName            #likeTableWithoutParentheses
-    | '(' LIKE name=tableName ')'  #likeTableWithParentheses
-    ;
-
 createTablespaceInnodb
     : CREATE TABLESPACE uid
       ADD DATAFILE datafile=STRING_LITERAL
@@ -38,16 +33,6 @@ createTablespaceNdb
       ENGINE '='? engineName
     ;
 
-createTrigger //ok
-    : CREATE owner=ownerStatement?
-      TRIGGER thisTrigger=fullId
-      triggerTime=(BEFORE | AFTER)
-      triggerEvent=(INSERT | UPDATE | DELETE)
-      ON table=tableName FOR EACH ROW
-      (triggerPlace=(FOLLOWS | PRECEDES) otherTrigger=fullId)?
-      body=routineBody
-    ;
-
 createView
     : CREATE (OR REPLACE)?
       (
@@ -61,23 +46,6 @@ createView
 
 // details
 
-createDatabaseOption //ignore
-    : DEFAULT? (CHARACTER SET | CHARSET) '='? charsetName
-    | DEFAULT? COLLATE '='? collationName
-    ;
-
-ownerStatement //ok: SymbolsVisitor
-    : DEFINER '=' id=userId
-    ;
-
-userId://ok: SymbolsVisitor
-    userName 
-    | currentUser
-    ;
-
-currentUser: //ok: SymbolsVisitor
-    CURRENT_USER ( '(' ')')?
-    ;
 
 scheduleExpression
     : AT timestampValue intervalExpr*                               #preciseSchedule
@@ -103,22 +71,6 @@ intervalExpr
     : '+' INTERVAL (decimalLiteral | expression) intervalType
     ;
 
-intervalType //ignore
-    : intervalTypeBase
-    | YEAR | YEAR_MONTH | DAY_HOUR | DAY_MINUTE
-    | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
-    | SECOND_MICROSECOND | MINUTE_MICROSECOND
-    | HOUR_MICROSECOND | DAY_MICROSECOND
-    ;
-
-enableType //ignore
-    : ENABLE | DISABLE | DISABLE ON SLAVE
-    ;
-
-indexType //ignore
-    : USING (BTREE | HASH)
-    ;
-
 indexOption
     : KEY_BLOCK_SIZE '='? fileSizeLiteral
     | indexType
@@ -126,59 +78,10 @@ indexOption
     | COMMENT STRING_LITERAL
     ;
 
-procedureParameter //ignore
-    : direction=(IN | OUT | INOUT) uid dataType
-    ;
-
-functionParameter //ignore
-    : uid dataType
-    ;
-
-routineOption //ignore
-    : COMMENT STRING_LITERAL                                        #routineComment
-    | LANGUAGE SQL                                                  #routineLanguage
-    | NOT? DETERMINISTIC                                            #routineBehavior
-    | (
-        CONTAINS SQL | NO SQL | READS SQL DATA
-        | MODIFIES SQL DATA
-      )                                                             #routineData
-    | SQL SECURITY context=(DEFINER | INVOKER)                      #routineSecurity
-    ;
-
-serverOption //ignore
-    : HOST STRING_LITERAL
-    | DATABASE STRING_LITERAL       
-    | USER STRING_LITERAL      
-    | PASSWORD STRING_LITERAL       
-    | SOCKET STRING_LITERAL         
-    | OWNER STRING_LITERAL     
-    | PORT decimalLiteral           
-    ;
-
-createDefinitions //ok
-    : '(' defs+=createDefinition (',' defs+=createDefinition)* ')'
-    ;
-
 createDefinition
     : uid def=columnDefinition  #createDefinitionColumn //ok
     | constraint=tableConstraint           #createDefinitionConstraint //ok
     | def=indexColumnDefinition     #createDefinitionIndex
-    ;
-
-columnDefinition //ok
-    : dataType constraints+=columnConstraint*
-    ;
-
-columnConstraint //ok
-    : nullNotnull                                                   #columnConstraintNull
-    | DEFAULT defaultValue                                          #columnConstraintDefault
-    | AUTO_INCREMENT                                                #columnConstraintAutoIncrement
-    | PRIMARY? KEY                                                  #columnConstraintPrimaryKey
-    | UNIQUE KEY?                                                   #columnConstraintUniqueKey
-    | COMMENT STRING_LITERAL                                        #columnConstraintComment
-    | COLUMN_FORMAT colformat=(FIXED | DYNAMIC | DEFAULT)           #columnConstraintFormat
-    | STORAGE storageval=(DISK | MEMORY | DEFAULT)                  #columnConstraintStorage
-    | refs=referenceDefinition                                           #columnConstraintReference
     ;
 
 tableConstraint
@@ -192,23 +95,6 @@ tableConstraint
       def=referenceDefinition                                           #tableConstraintForeignKey //ok
     | (CONSTRAINT name=uid?)?
       CHECK '(' exp=expression ')'                                      #tableConstraintCheck //ok
-    ;
-
-referenceDefinition //ok
-    : REFERENCES name=tableName indexColumnNames
-      (MATCH matchType=(FULL | PARTIAL | SIMPLE))?
-      referenceAction?
-    ;
-
-referenceAction //ignore
-    : ON DELETE onDelete=referenceControlType
-      (
-        ON UPDATE onUpdate=referenceControlType
-      )?
-    | ON UPDATE onUpdate=referenceControlType
-      (
-        ON DELETE onDelete=referenceControlType
-      )?
     ;
 
 referenceControlType
@@ -253,10 +139,6 @@ tableOption
     | STATS_SAMPLE_PAGES '='? decimalLiteral                        #tableOptionSamplePage
     | TABLESPACE uid tablespaceStorage?                             #tableOptionTablespace
     | UNION '='? '(' tables ')'                                     #tableOptionUnion
-    ;
-
-tablespaceStorage //ignore
-    : STORAGE (DISK | MEMORY | DEFAULT)
     ;
 
 partitionDefinitions
@@ -1532,28 +1414,6 @@ showCommonEntity
 showFilter
     : LIKE STRING_LITERAL
     | WHERE expression
-    ;
-
-showGlobalInfoClause //ignore
-    : STORAGE? ENGINES | MASTER STATUS | PLUGINS
-    | PRIVILEGES | FULL? PROCESSLIST | PROFILES
-    | SLAVE HOSTS | AUTHORS | CONTRIBUTORS
-    ;
-
-showSchemaEntity //ignore
-    : EVENTS | TABLE STATUS | FULL? TABLES | TRIGGERS
-    ;
-
-showProfileType //ignore
-    : ALL | BLOCK IO | CONTEXT SWITCHES | CPU | IPC | MEMORY
-    | PAGE FAULTS | SOURCE | SWAPS
-    ;
-
-
-//    Other administrative statements
-
-binlogStatement //ignore
-    : BINLOG STRING_LITERAL
     ;
 
 cacheIndexStatement
