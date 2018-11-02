@@ -8,24 +8,23 @@ import java.nio.charset.StandardCharsets;
 import de.loteslab.mmm.mysqllang.IAnalyzer;
 import de.loteslab.mmm.mysqllang.IParser;
 import de.loteslab.mmm.mysqllang.IPreprocessedSource;
-import de.loteslab.mmm.mysqllang.ISourceInterface;
-import de.loteslab.mmm.mysqllang.ISymbolFactory;
+import de.loteslab.mmm.mysqllang.ISourceExecution;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.RootContext;
 
 public class Analyzer implements IAnalyzer {	
 	private IParser parser;
-	private ISymbolFactory factory;
+	private SymbolFactory factory;
 	
-	public Analyzer(IParser parser, ISymbolFactory symbolFactory) {
+	public Analyzer(IParser parser, SymbolFactory symbolFactory) {
 		this.factory = symbolFactory;
 		this.parser = parser;
 	}
 
 	@Override
-	public ISourceInterface analyzeSource(IPreprocessedSource source) {
+	public ISourceExecution analyzeSource(IPreprocessedSource source) {
 		InputStream stream = new ByteArrayInputStream(source.getPreprocessedContent().getBytes(StandardCharsets.UTF_8));
 		try {
-			SourceInterfaceVisitor visitor = new SourceInterfaceVisitor(factory);
+			SourceExecutionVisitor visitor = new SourceExecutionVisitor(factory);
 			RootContext root = parser.parse(stream);
 			return visitor.visit(root);
 		} catch (IOException e) {
