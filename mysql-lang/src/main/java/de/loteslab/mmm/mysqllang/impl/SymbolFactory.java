@@ -3,13 +3,14 @@ package de.loteslab.mmm.mysqllang.impl;
 import java.util.HashMap;
 import java.util.function.Function;
 
+import de.loteslab.mmm.mysqllang.ISourceExecution;
 import de.loteslab.mmm.mysqllang.ISymbol;
 import de.loteslab.mmm.mysqllang.ISymbolFactory;
 import de.loteslab.mmm.mysqllang.ISymbolNameNormalizer;
 import de.loteslab.mmm.mysqllang.ISymbolType;
 
 public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
-	public static final class TypeNames {
+	private static final class TypeNames {
 		public static final String TABLE_LIKE = "TABLE_LIKE";
 		public static final String DATABASE = "DATABASE";
 		public static final String EVENT = "EVENT";
@@ -23,23 +24,59 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		public static final String TRIGGER = "TRIGGER";
 	}
 	
+	public class Types {
+		private HashMap<ISymbolType, Function<String, String>> normalizers;
+		
+		public Types() {
+			TableLike =  createSymbolType(SymbolFactory.TypeNames.TABLE_LIKE);
+			Database = createSymbolType(SymbolFactory.TypeNames.DATABASE);
+			User = createSymbolType(SymbolFactory.TypeNames.USER);
+			Event = createSymbolType(SymbolFactory.TypeNames.EVENT);
+			Index = createSymbolType(SymbolFactory.TypeNames.INDEX);
+			LogFileGroup = createSymbolType(SymbolFactory.TypeNames.LOGFILE_GROUP);
+			Procedure = createSymbolType(SymbolFactory.TypeNames.PROCEDURE);
+			Function = createSymbolType(SymbolFactory.TypeNames.FUNCTION);
+			Server = createSymbolType(SymbolFactory.TypeNames.SERVER);
+			Tablespace = createSymbolType(SymbolFactory.TypeNames.TABLESPACE);
+			Trigger = createSymbolType(SymbolFactory.TypeNames.TRIGGER);
+			
+			normalizers = new HashMap<ISymbolType, Function<String, String>>();
+			normalizers.put(TableLike, str -> normalizeFullId(str));
+			normalizers.put(Database, str -> str.toLowerCase());
+			normalizers.put(User, str -> str);
+			normalizers.put(Event, str -> normalizeFullId(str));
+			normalizers.put(Index, str -> normalizeFullId(str));
+			normalizers.put(LogFileGroup, str -> str.toLowerCase());
+			normalizers.put(Procedure, str -> normalizeFullId(str));
+			normalizers.put(Function, str -> normalizeFullId(str));
+			normalizers.put(Server, str -> str.toLowerCase());
+			normalizers.put(Tablespace, str -> str.toLowerCase());
+			normalizers.put(Trigger, str -> normalizeFullId(str));
+		}
+		
+		public final ISymbolType TableLike;
+		public final ISymbolType Database;
+		public final ISymbolType User;
+		public final ISymbolType Event;
+		public final ISymbolType Index;
+		public final ISymbolType LogFileGroup;
+		public final ISymbolType Procedure;
+		public final ISymbolType Function;
+		public final ISymbolType Server;
+		public final ISymbolType Tablespace;
+		public final ISymbolType Trigger;
+		
+		public String normalizeName(ISymbolType type, String name) {
+			if(normalizers.containsKey(type))
+				return normalizers.get(type).apply(name);
+			return name;
+		}
+	}
+	
 	private static final String PREFIX_CURRENT_DB = "<current_db>.";
 
 	private HashMap<String, ISymbolType> types = new HashMap<String, ISymbolType>();
 	private HashMap<ISymbolType, HashMap<String, ISymbol>> symbols = new HashMap<ISymbolType, HashMap<String, ISymbol>>();
-	
-	private HashMap<ISymbolType, Function<String, String>> normalizers;
-	private ISymbolType symbolTypeTableLike;
-	private ISymbolType symbolTypeDatabase;
-	private ISymbolType symbolTypeUser;
-	private ISymbolType symbolTypeEvent;
-	private ISymbolType symbolTypeIndex;
-	private ISymbolType symbolTypeLogFileGroup;
-	private ISymbolType symbolTypeProcedure;
-	private ISymbolType symbolTypeFunction;
-	private ISymbolType symbolTypeServer;
-	private ISymbolType symbolTypeTablespace;
-	private ISymbolType symbolTypeTrigger;
 
 	private static class SymbolType implements ISymbolType {
 		private String name;
@@ -66,11 +103,13 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		}
 	}
 	private class Symbol implements ISymbol {
+		private ISourceExecution execution = null;
 		private String name;
 		private ISymbolType type;
-		public Symbol(String name, ISymbolType type) {
+		public Symbol(String name, ISymbolType type, ISourceExecution execution) {
 			this.name = SymbolFactory.this.normalize(type, name);
 			this.type = type;
+			this.execution = execution;
 		}
 		
 		@Override
@@ -90,53 +129,17 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 			ISymbol other = (ISymbol)obj;
 			return other.getName().equals(name) && other.getSymbolType().equals(type);
 		}
+
+		@Override
+		public ISourceExecution getExecution() {
+			return execution;
+		}
 	}
+	
+	public final Types Predefined = this.new Types();
 	
 	public SymbolFactory() {
-		symbolTypeTableLike = createSymbolType(TypeNames.TABLE_LIKE);
-		symbolTypeDatabase = createSymbolType(TypeNames.DATABASE);
-		symbolTypeUser = createSymbolType(TypeNames.USER);
-		symbolTypeEvent = createSymbolType(TypeNames.EVENT);
-		symbolTypeIndex = createSymbolType(TypeNames.INDEX);
-		symbolTypeLogFileGroup = createSymbolType(TypeNames.LOGFILE_GROUP);
-		symbolTypeProcedure = createSymbolType(TypeNames.PROCEDURE);
-		symbolTypeFunction = createSymbolType(TypeNames.FUNCTION);
-		symbolTypeServer = createSymbolType(TypeNames.SERVER);
-		symbolTypeTablespace = createSymbolType(TypeNames.TABLESPACE);
-		symbolTypeTrigger = createSymbolType(TypeNames.TRIGGER);
 		
-		normalizers = new HashMap<ISymbolType, Function<String, String>>();
-		normalizers.put(symbolTypeTableLike, str -> normalizeTableName(str));
-		normalizers.put(symbolTypeDatabase, str -> normalizeDatabaseName(str));
-		normalizers.put(symbolTypeUser, str -> normalizeUser(str));
-		normalizers.put(symbolTypeEvent, str -> normalizeEvent(str));
-		normalizers.put(symbolTypeIndex, str -> normalizeIndex(str));
-		normalizers.put(symbolTypeLogFileGroup, str -> normalizeLogFileGroup(str));
-		normalizers.put(symbolTypeProcedure, str -> normalizeFullId(str));
-		normalizers.put(symbolTypeFunction, str -> normalizeFullId(str));
-		normalizers.put(symbolTypeServer, str -> str.toLowerCase());
-		normalizers.put(symbolTypeTablespace, str -> str.toLowerCase());
-		normalizers.put(symbolTypeTrigger, str -> normalizeFullId(str));
-	}
-	
-	private String normalizeLogFileGroup(String str) {
-		return str.toLowerCase();
-	}
-
-	private String normalizeIndex(String str) {
-		return normalizeFullId(str);
-	}
-
-	private String normalizeEvent(String str) {
-		return normalizeFullId(str);
-	}
-
-	private String normalizeUser(String str) {
-		return str;
-	}
-
-	private String normalizeDatabaseName(String str) {
-		return str.toLowerCase();
 	}
 
 	public static String normalizeName(String name) {
@@ -152,20 +155,17 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 	}
 
 	@Override
-	public ISymbol createSymbol(String name, ISymbolType type) {
+	public ISymbol createSymbol(String name, ISymbolType type, ISourceExecution execution) {
 		if(!symbols.containsKey(type))
 			symbols.put(type, new HashMap<String, ISymbol>());
 		HashMap<String, ISymbol> map = symbols.get(type);
-		String key = normalizeName(name);
+		String key = Predefined.normalizeName(type, name);
 		if(!map.containsKey(key)) {
-			map.put(key, new Symbol(key, type));
+			map.put(key, new Symbol(key, type, execution));
 		}
 		return map.get(key);
 	}
 
-	private String normalizeTableName(String text) {
-		return normalizeFullId(text);
-	}
 
 	private String normalizeFullId(String text) {
 		if(!text.contains("."))
@@ -175,8 +175,6 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 
 	@Override
 	public String normalize(ISymbolType type, String name) {
-		if(normalizers.containsKey(type))
-			return normalizers.get(type).apply(name);
-		return null;
+		return Predefined.normalizeName(type, name);
 	}
 }

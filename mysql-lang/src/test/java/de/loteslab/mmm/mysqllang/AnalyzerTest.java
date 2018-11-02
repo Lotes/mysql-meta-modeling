@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,7 +19,9 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import de.loteslab.mmm.mysqllang.impl.Analyzer;
+import de.loteslab.mmm.mysqllang.impl.ExpectationStatement;
 import de.loteslab.mmm.mysqllang.impl.Parser;
+import de.loteslab.mmm.mysqllang.impl.SourceExecution;
 import de.loteslab.mmm.mysqllang.impl.SymbolFactory;
 
 @RunWith(Parameterized.class)
@@ -32,10 +34,6 @@ public class AnalyzerTest {
 	 */
 	private enum State {
 		EMPTY, INPUT, OUTPUT
-	}
-	
-	private enum Mode {
-		IMPORTS, EXPORTS
 	}
 	
 	private static class Source implements IPreprocessedSource {
@@ -51,24 +49,9 @@ public class AnalyzerTest {
 		}
 	}
 	
-	private static class Expectation {
-		private Mode mode;
-		private ISymbol symbol;
-		public Expectation(Mode mode, ISymbol symbol) {
-			this.mode = mode;
-			this.symbol = symbol;
-		}
-		public ISymbol getSymbol() {
-			return symbol;
-		}
-		public Mode getMode() {
-			return mode;
-		}
-	}
-	
-	@Parameters(name = "{index}: {0}")
-    public static Iterable<File> data() {
-    	File rootFolder = new File("examples/analyze-interface");
+	@Parameters(name = "{0}")
+    public static Iterable<File> data() throws IOException {
+    	File rootFolder = new File("examples/analyze-interface").getCanonicalFile();
     	LinkedList<File> list = new LinkedList<File>();
     	for(File file: rootFolder.listFiles())
     		if(file.isFile())
@@ -82,34 +65,28 @@ public class AnalyzerTest {
 	@Test
 	public void test() throws FileNotFoundException, IOException, TestCaseSyntaxException {
 		//read lines
-		ISymbolFactory symbolFactory = new SymbolFactory();
+		SymbolFactory symbolFactory = new SymbolFactory();
 		StringBuilder inputBuilder = new StringBuilder();
-		List<Expectation> expectations = new LinkedList<Expectation>();
+		List<ExpectationStatement> expectations = new LinkedList<ExpectationStatement>();
 		readTestCase(symbolFactory, inputBuilder, expectations);
 		
 		//parse input
 		IParser parser = new Parser();
 		IAnalyzer analyzer = new Analyzer(parser, symbolFactory);
 		IPreprocessedSource source = new Source(inputBuilder.toString());
-		ISourceInterface iface = analyzer.analyzeSource(source);
+		ISourceExecution iface = analyzer.analyzeSource(source);
 		
+		//execute input
+		HashSet<IExpectationStatement> target = new HashSet<IExpectationStatement>();
+		for(IExpectationStatement expectation: iface.getExpectations())
+			target.add(expectation);
 		//compare with expectations
-		for(Expectation exp: expectations) {
-			Iterable<ISymbol> symbols = exp.getMode() == Mode.IMPORTS
-				? iface.getImports()
-				: iface.getExports();
-			Iterator<ISymbol> iterator = symbols.iterator();
-			boolean found = false;
-			while(!found && iterator.hasNext()) {
-				ISymbol current = iterator.next();
-				found = current.equals(exp.getSymbol());
-			}
-			if(!found)
-				fail("Expected, but not found: "+exp.getMode().name()+" "+exp.getSymbol().getName()+": "+exp.getSymbol().getSymbolType().getName());
-		}
+		for(ExpectationStatement exp: expectations)
+			if(!target.contains(exp.getSymbol()))
+				fail("Expected, but not found: "+exp.getExpectation().name()+" "+exp.getSymbol().getName()+": "+exp.getSymbol().getSymbolType().getName());
 	}
 
-	private void readTestCase(ISymbolFactory symbolFactory, StringBuilder inputBuilder, List<Expectation> expectations) throws IOException, TestCaseSyntaxException {
+	private void readTestCase(ISymbolFactory symbolFactory, StringBuilder inputBuilder, List<ExpectationStatement> statements) throws IOException, TestCaseSyntaxException {
 		final String patternInput = "^--input$";
 		final String patternOutput = "^--output$";
 		final String patternSymbol = "^(imports|exports) ([^:]+):([^:]+)$";
@@ -134,11 +111,11 @@ public class AnalyzerTest {
 						String strMode = matcher.group(1);
 						String strName = matcher.group(2);
 						String strType = matcher.group(3);
-						Mode mode = strMode.equalsIgnoreCase("imports") ? Mode.IMPORTS : Mode.EXPORTS;
+						Expectation expectation = Expectation.valueOf(strMode);
 						ISymbolType type = symbolFactory.createSymbolType(strType);
-						ISymbol symbol = symbolFactory.createSymbol(strName, type);
-						Expectation expectation = new Expectation(mode, symbol);
-						expectations.add(expectation);
+						ISymbol symbol = symbolFactory.createSymbol(strName, type, SourceExecution.EMPTY);
+						ExpectationStatement statement = new ExpectationStatement(expectation, symbol);
+						statements.add(statement);
 					} else {
 						throw new TestCaseSyntaxException("Unexpected format at line "+lineNumber+": "+line);
 					}
