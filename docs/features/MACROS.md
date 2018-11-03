@@ -1,8 +1,8 @@
-#Feature: Macros
+# Macros
 
 Define template variables with the power of JSON.
 
-##Definition
+## Definition
 
 ```sql
 -- define template variables of different types
@@ -15,7 +15,7 @@ Define template variables with the power of JSON.
 #define xxx from file (name+".json")
 ```
 
-##Query
+## Query
 
 ```sql
 --simple
@@ -27,7 +27,7 @@ CREATE TABLE friends (
 SELECT * FROM {{table[0].name+"backup"}}
 ```
 
-##Branching
+## Branching
 
 ```sql
 {if condition}
@@ -39,7 +39,7 @@ SELECT ...
 {/if}
 ```
 
-##Looping
+## Looping
 
 
 ```sql

@@ -14,11 +14,11 @@ _Algorithm_:
 _Example_:
 
 ```sql
---create.sql
-CREATE TABLE tab (name TEXT PRIMARY KEY);
-
 --add.sql
 INSERT INTO tab (name) VALUES ('markus');
+
+--create.sql
+CREATE TABLE tab (name TEXT PRIMARY KEY);
 
 --get.sql
 #import "add"
@@ -28,3 +28,9 @@ SELECT * FROM tab;
 _Corresponding dependency graph_:
 
 ![Graph](dependency_graph.png)
+
+_Corresponsing execution_:
+
+1. create.sql
+2. add.sql
+3. get.sql
