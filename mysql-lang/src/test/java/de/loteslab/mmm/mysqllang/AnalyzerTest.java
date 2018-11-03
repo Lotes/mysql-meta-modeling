@@ -89,7 +89,7 @@ public class AnalyzerTest {
 	private void readTestCase(ISymbolFactory symbolFactory, StringBuilder inputBuilder, List<ExpectationStatement> statements) throws IOException, TestCaseSyntaxException {
 		final String patternInput = "^--input$";
 		final String patternOutput = "^--output$";
-		final String patternSymbol = "^(imports|exports) ([^:]+):([^:]+)$";
+		final String patternSymbol = "^([a-z_0-9]+) ([^:]+):([^:]+)$";
 		final Pattern patternSymbolCompiled = Pattern.compile(patternSymbol, Pattern.CASE_INSENSITIVE);
 		
 		State state = State.EMPTY;
@@ -108,10 +108,10 @@ public class AnalyzerTest {
 				case OUTPUT:
 					Matcher matcher = patternSymbolCompiled.matcher(line);
 					if(matcher.find()) {
-						String strMode = matcher.group(1);
+						String strExp = matcher.group(1);
 						String strName = matcher.group(2);
 						String strType = matcher.group(3);
-						Expectation expectation = Expectation.valueOf(strMode);
+						Expectation expectation = Expectation.valueOf(strExp);
 						ISymbolType type = symbolFactory.createSymbolType(strType);
 						ISymbol symbol = symbolFactory.createSymbol(strName, type, SourceExecution.EMPTY);
 						ExpectationStatement statement = new ExpectationStatement(expectation, symbol);

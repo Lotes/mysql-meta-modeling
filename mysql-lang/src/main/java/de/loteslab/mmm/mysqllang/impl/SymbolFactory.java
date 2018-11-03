@@ -73,7 +73,8 @@ public class SymbolFactory implements ISymbolFactory, ISymbolNameNormalizer {
 		}
 	}
 	
-	private static final String PREFIX_CURRENT_DB = "<current_db>.";
+	public static final String CURRENT_DB = "<current_db>";
+	private static final String PREFIX_CURRENT_DB = CURRENT_DB+".";
 
 	private HashMap<String, ISymbolType> types = new HashMap<String, ISymbolType>();
 	private HashMap<ISymbolType, HashMap<String, ISymbol>> symbols = new HashMap<ISymbolType, HashMap<String, ISymbol>>();

@@ -5,6 +5,6 @@ SET
   @deposits = @deposits + IF(NEW.amount>0,NEW.amount,0),
   @withdrawals = @withdrawals + IF(NEW.amount<0,-NEW.amount,0);
 --output
-EXPORTS ins_transaction:TRIGGER
-IMPORTS ins_sum:TRIGGER
-IMPORTS account:TABLE_LIKE
+CREATED ins_transaction:TRIGGER
+NEEDED ins_sum:TRIGGER
+NEEDED account:TABLE_LIKE

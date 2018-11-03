@@ -525,21 +525,21 @@ partitionOption
 
 //    Alter statements
 
-alterDatabase
-    : ALTER dbFormat=(DATABASE | SCHEMA) uid?
-      createDatabaseOption+                                         #alterSimpleDatabase
-    | ALTER dbFormat=(DATABASE | SCHEMA) uid
-      UPGRADE DATA DIRECTORY NAME                                   #alterUpgradeName
+alterDatabase //ok
+    : ALTER dbFormat=(DATABASE | SCHEMA) name=uid?
+      options+=createDatabaseOption+                                #alterDatabaseSimple //ok
+    | ALTER dbFormat=(DATABASE | SCHEMA) name=uid
+      UPGRADE DATA DIRECTORY NAME                                   #alterDatabaseUpgradeName //ok
     ;
 
 alterEvent
-    : ALTER ownerStatement?
-      EVENT fullId
+    : ALTER owner=ownerStatement?
+      EVENT name=fullId
       (ON SCHEDULE scheduleExpression)?
       (ON COMPLETION NOT? PRESERVE)?
-      (RENAME TO fullId)? enableType?
+      (RENAME TO newName=fullId)? enableType?
       (COMMENT STRING_LITERAL)?
-      (DO routineBody)?
+      (DO body=routineBody)?
     ;
 
 alterFunction
@@ -1574,7 +1574,7 @@ privelegeClause
     : privilege ( '(' uidList ')' )?
     ;
 
-privilege
+privilege //ignore
     : ALL PRIVILEGES?
     | ALTER ROUTINE?
     | CREATE

@@ -1,4 +1,4 @@
 --input
 CREATE DATABASE xxx;
 --output
-EXPORTS xxx:DATABASE
+CREATED xxx:DATABASE

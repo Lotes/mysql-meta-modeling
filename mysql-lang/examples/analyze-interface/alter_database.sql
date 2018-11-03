@@ -1,0 +1,4 @@
+--input
+ALTER DATABASE xxx CHARACTER SET UTF8
+--output
+NEEDED xxx:DATABASE

@@ -6,6 +6,9 @@ import de.loteslab.mmm.mysqllang.ISymbol;
 import de.loteslab.mmm.mysqllang.ISymbolType;
 import de.loteslab.mmm.mysqllang.ScopeAction;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.AdministrationStatementContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterDatabaseSimpleContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterDatabaseUpgradeNameContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterEventContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintAutoIncrementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintCommentContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintContext;
@@ -399,6 +402,30 @@ public class SourceExecutionVisitor extends MySqlParserBaseVisitor<SourceExecuti
 		String name = textVisitor.visit(ctx.thisTrigger);
 		ISymbol trigger = factory.createSymbol(name, type, body);
 		result.addAction(ScopeAction.CREATE, trigger);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitAlterDatabaseSimple(AlterDatabaseSimpleContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = ctx.name != null 
+			? textVisitor.visit(ctx.name)
+			: SymbolFactory.CURRENT_DB;
+		ISymbol database = factory.createSymbol(name, factory.Predefined.Database, SourceExecution.EMPTY);
+		result.addAction(ScopeAction.REQUIRE, database);
+				
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitAlterDatabaseUpgradeName(AlterDatabaseUpgradeNameContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol database = factory.createSymbol(name, factory.Predefined.Database, SourceExecution.EMPTY);
+		result.addAction(ScopeAction.REQUIRE, database);
 		
 		return result;
 	}

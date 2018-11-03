@@ -4,6 +4,6 @@ CREATE DEFINER=lotes EVENT myevent
     DO
       UPDATE mytable SET mycol = mycol + 1;
 --output
-IMPORTS lotes:USER
-EXPORTS myevent:EVENT
-IMPORTS mytable:TABLE_LIKE
+NEEDED lotes:USER
+NEEDED mytable:TABLE_LIKE
+CREATED myevent:EVENT
