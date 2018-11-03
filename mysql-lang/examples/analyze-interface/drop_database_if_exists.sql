@@ -1,0 +1,6 @@
+--scope
+db:DATABASE
+--input
+DROP DATABASE IF EXISTS db;
+--output
+DROPPED db:DATABASE

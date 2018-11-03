@@ -1,0 +1,7 @@
+--scope
+e:PROCEDURE
+--input
+DROP PROCEDURE e;
+--output
+NEEDED e:PROCEDURE
+DROPPED e:PROCEDURE

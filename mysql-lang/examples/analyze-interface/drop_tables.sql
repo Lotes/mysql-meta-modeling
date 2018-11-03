@@ -1,0 +1,7 @@
+--scope
+e:SERVER
+--input
+DROP SERVER e;
+--output
+NEEDED e:SERVER
+DROPPED e:SERVER

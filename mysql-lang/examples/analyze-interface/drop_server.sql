@@ -1,0 +1,10 @@
+--scope
+aaa:TABLE_LIKE
+bbb:TABLE_LIKE
+--input
+DROP TABLE aaa, bbb;
+--output
+NEEDED aaa:TABLE_LIKE
+DROPPED aaa:TABLE_LIKE
+NEEDED bbb:TABLE_LIKE
+DROPPED bbb:TABLE_LIKE

@@ -36,6 +36,14 @@ import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateTableLikeContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.CreateTriggerContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DdlStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DmlStatementContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropDatabaseContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropEventContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropFunctionContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropIndexContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropLogfileGroupContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropProcedureContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropServerContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropTableContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.EmptyStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.LastStatementEmptyContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.LastStatementSqlContext;
@@ -429,5 +437,107 @@ public class SourceExecutionVisitor extends MySqlParserBaseVisitor<SourceExecuti
 		
 		return result;
 	}
+
+	@Override
+	public SourceExecution visitDropDatabase(DropDatabaseContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol database = factory.createSymbol(name, factory.Predefined.Database, SourceExecution.EMPTY);
+		if(ctx.exists == null)
+			result.addAction(ScopeAction.REQUIRE, database);
+		result.addAction(ScopeAction.DELETE, database);
+		
+		return result;
+	}
 	
+	@Override
+	public SourceExecution visitDropEvent(DropEventContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol event = factory.createSymbol(name, factory.Predefined.Event, SourceExecution.EMPTY);
+		if(ctx.exists == null)
+			result.addAction(ScopeAction.REQUIRE, event);
+		result.addAction(ScopeAction.DELETE, event);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropIndex(DropIndexContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol index = factory.createSymbol(name, factory.Predefined.Index, SourceExecution.EMPTY);
+		result.addAction(ScopeAction.REQUIRE, index);
+		result.addAction(ScopeAction.DELETE, index);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropLogfileGroup(DropLogfileGroupContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol group = factory.createSymbol(name, factory.Predefined.LogFileGroup, SourceExecution.EMPTY);
+		result.addAction(ScopeAction.REQUIRE, group);
+		result.addAction(ScopeAction.DELETE, group);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropProcedure(DropProcedureContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol procedure = factory.createSymbol(name, factory.Predefined.Procedure, SourceExecution.EMPTY);
+		if(ctx.exists == null)
+			result.addAction(ScopeAction.REQUIRE, procedure);
+		result.addAction(ScopeAction.DELETE, procedure);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropFunction(DropFunctionContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol function = factory.createSymbol(name, factory.Predefined.Function, SourceExecution.EMPTY);
+		if(ctx.exists == null)
+			result.addAction(ScopeAction.REQUIRE, function);
+		result.addAction(ScopeAction.DELETE, function);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropServer(DropServerContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name = textVisitor.visit(ctx.name);
+		ISymbol server = factory.createSymbol(name, factory.Predefined.Server, SourceExecution.EMPTY);
+		if(ctx.exists == null)
+			result.addAction(ScopeAction.REQUIRE, server);
+		result.addAction(ScopeAction.DELETE, server);
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropTable(DropTableContext ctx) {
+		SourceExecution result = new SourceExecution();
+		boolean requires = ctx.exists == null;
+		
+		for(ISymbol table: symbolVisitor.visit(ctx.tbls)) {
+			if(requires)
+				result.addAction(ScopeAction.REQUIRE, table);
+			result.addAction(ScopeAction.DELETE, table);		
+		}
+		
+		return result;
+	}
 }

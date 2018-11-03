@@ -1,0 +1,7 @@
+--scope
+db:DATABASE
+--input
+DROP DATABASE db;
+--output
+NEEDED db:DATABASE
+DROPPED db:DATABASE

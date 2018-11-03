@@ -1,0 +1,7 @@
+--scope
+e:FUNCTION
+--input
+DROP FUNCTION e;
+--output
+NEEDED e:FUNCTION
+DROPPED e:FUNCTION

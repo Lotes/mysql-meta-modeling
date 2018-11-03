@@ -664,17 +664,17 @@ alterSpecification
 
 //    Drop statements
 
-dropDatabase
-    : DROP dbFormat=(DATABASE | SCHEMA) ifExists? uid
+dropDatabase //ok
+    : DROP dbFormat=(DATABASE | SCHEMA) exists=ifExists? name=uid
     ;
 
-dropEvent
-    : DROP EVENT ifExists? fullId
+dropEvent //ok
+    : DROP EVENT exists=ifExists? name=fullId
     ;
 
-dropIndex
+dropIndex //ok
     : DROP INDEX intimeAction=(ONLINE | OFFLINE)?
-      uid ON tableName
+      name=uid ON table=tableName
       (
         ALGORITHM '='? algType=(DEFAULT | INPLACE | COPY)
       )?
@@ -683,29 +683,29 @@ dropIndex
       )?
     ;
 
-dropLogfileGroup
-    : DROP LOGFILE GROUP uid ENGINE '=' engineName
+dropLogfileGroup //ok
+    : DROP LOGFILE GROUP name=uid ENGINE '=' engineName
     ;
 
-dropProcedure
-    : DROP PROCEDURE ifExists? fullId
+dropProcedure //ok
+    : DROP PROCEDURE exists=ifExists? name=fullId
     ;
 
-dropFunction
-    : DROP FUNCTION ifExists? fullId
+dropFunction //ok
+    : DROP FUNCTION exists=ifExists? name=fullId
     ;
 
-dropServer
-    : DROP SERVER ifExists? uid
+dropServer //ok
+    : DROP SERVER exists=ifExists? name=uid
     ;
 
-dropTable
-    : DROP TEMPORARY? TABLE ifExists?
-      tables dropType=(RESTRICT | CASCADE)?
+dropTable //ok
+    : DROP TEMPORARY? TABLE exists=ifExists?
+      tbls=tables dropType=(RESTRICT | CASCADE)?
     ;
 
 dropTablespace
-    : DROP TABLESPACE uid (ENGINE '='? engineName)?
+    : DROP TABLESPACE name=uid (ENGINE '='? engineName)?
     ;
 
 dropTrigger

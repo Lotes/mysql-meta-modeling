@@ -351,47 +351,6 @@ alterSpecification
 
 
 //    Drop statements
-
-dropDatabase
-    : DROP dbFormat=(DATABASE | SCHEMA) ifExists? uid
-    ;
-
-dropEvent
-    : DROP EVENT ifExists? fullId
-    ;
-
-dropIndex
-    : DROP INDEX intimeAction=(ONLINE | OFFLINE)?
-      uid ON tableName
-      (
-        ALGORITHM '='? algType=(DEFAULT | INPLACE | COPY)
-      )?
-      (
-        LOCK '='? lockType=(DEFAULT | NONE | SHARED | EXCLUSIVE)
-      )?
-    ;
-
-dropLogfileGroup
-    : DROP LOGFILE GROUP uid ENGINE '=' engineName
-    ;
-
-dropProcedure
-    : DROP PROCEDURE ifExists? fullId
-    ;
-
-dropFunction
-    : DROP FUNCTION ifExists? fullId
-    ;
-
-dropServer
-    : DROP SERVER ifExists? uid
-    ;
-
-dropTable
-    : DROP TEMPORARY? TABLE ifExists?
-      tables dropType=(RESTRICT | CASCADE)?
-    ;
-
 dropTablespace
     : DROP TABLESPACE uid (ENGINE '='? engineName)?
     ;

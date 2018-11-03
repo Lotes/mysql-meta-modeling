@@ -27,13 +27,16 @@ import de.loteslab.mmm.mysqllang.impl.SymbolFactory;
 @RunWith(Parameterized.class)
 public class AnalyzerTest {
 	/* SAMPLE FILE:
+	 * --scope
+	 * xxx:TABLE_LIKE
 	 * --input
 	 * SELECT * FROM table;
 	 * --output
-	 * IMPORTS table:TABLE_OR_VIEW
+	 * CREATED xxx:TABLE_LIKE
+	 * NEEDED table:TABLE_LIKE
 	 */
 	private enum State {
-		EMPTY, INPUT, OUTPUT
+		EMPTY, INPUT, OUTPUT, SCOPE
 	}
 	
 	private static class Source implements IPreprocessedSource {
@@ -66,9 +69,10 @@ public class AnalyzerTest {
 	public void test() throws FileNotFoundException, IOException, TestCaseSyntaxException {
 		//read lines
 		SymbolFactory symbolFactory = new SymbolFactory();
+		HashSet<ISymbol> scope = new HashSet<ISymbol>();
 		StringBuilder inputBuilder = new StringBuilder();
 		List<ExpectationStatement> expectations = new LinkedList<ExpectationStatement>();
-		readTestCase(symbolFactory, inputBuilder, expectations);
+		readTestCase(symbolFactory, scope, inputBuilder, expectations);
 		
 		//parse input
 		IParser parser = new Parser();
@@ -78,6 +82,8 @@ public class AnalyzerTest {
 		
 		//execute input
 		HashSet<IExpectationStatement> target = new HashSet<IExpectationStatement>();
+		for(ISymbol symbol: scope)
+			target.add(new ExpectationStatement(Expectation.CREATED, symbol));
 		for(IExpectationStatement expectation: iface.getExpectations())
 			target.add(expectation);
 		//compare with expectations
@@ -86,11 +92,14 @@ public class AnalyzerTest {
 				fail("Expected, but not found: "+exp.getExpectation().name()+" "+exp.getSymbol().getName()+": "+exp.getSymbol().getSymbolType().getName());
 	}
 
-	private void readTestCase(ISymbolFactory symbolFactory, StringBuilder inputBuilder, List<ExpectationStatement> statements) throws IOException, TestCaseSyntaxException {
+	private void readTestCase(ISymbolFactory symbolFactory, HashSet<ISymbol> scope, StringBuilder inputBuilder, List<ExpectationStatement> statements) throws IOException, TestCaseSyntaxException {
 		final String patternInput = "^--input$";
 		final String patternOutput = "^--output$";
-		final String patternSymbol = "^([a-z_0-9]+) ([^:]+):([^:]+)$";
-		final Pattern patternSymbolCompiled = Pattern.compile(patternSymbol, Pattern.CASE_INSENSITIVE);
+		final String patternScope = "^--scope$";
+		final String patternExpectation = "^([a-z_0-9]+) ([^:]+):([^:]+)$";
+		final String patternDefintion = "^([^:]+):([^:]+)$";
+		final Pattern patternExpectationCompiled = Pattern.compile(patternExpectation, Pattern.CASE_INSENSITIVE);
+		final Pattern patternDefinitionCompiled = Pattern.compile(patternDefintion, Pattern.CASE_INSENSITIVE);
 		
 		State state = State.EMPTY;
 		int lineNumber = 1;
@@ -99,14 +108,28 @@ public class AnalyzerTest {
 				state = State.INPUT;
 			} else if(line.matches(patternOutput)) {
 				state = State.OUTPUT;
+			} else if(line.matches(patternScope)) {
+				state = State.SCOPE;
 			} else {
 				switch (state) {
 				case INPUT:
 					inputBuilder.append(line);
 					inputBuilder.append("\r\n");
 					break;
+				case SCOPE:
+					Matcher scopeMatcher = patternDefinitionCompiled.matcher(line);
+					if(scopeMatcher.find()) {
+						String strName = scopeMatcher.group(1);
+						String strType = scopeMatcher.group(2);
+						ISymbolType type = symbolFactory.createSymbolType(strType);
+						ISymbol symbol = symbolFactory.createSymbol(strName, type, SourceExecution.EMPTY);
+						scope.add(symbol);
+					} else {
+						ThrowFormatError(lineNumber, line);
+					}
+					break;
 				case OUTPUT:
-					Matcher matcher = patternSymbolCompiled.matcher(line);
+					Matcher matcher = patternExpectationCompiled.matcher(line);
 					if(matcher.find()) {
 						String strExp = matcher.group(1);
 						String strName = matcher.group(2);
@@ -117,7 +140,7 @@ public class AnalyzerTest {
 						ExpectationStatement statement = new ExpectationStatement(expectation, symbol);
 						statements.add(statement);
 					} else {
-						throw new TestCaseSyntaxException("Unexpected format at line "+lineNumber+": "+line);
+						ThrowFormatError(lineNumber, line);
 					}
 					break;
 				default:
@@ -126,5 +149,9 @@ public class AnalyzerTest {
 			}
 			lineNumber++;
 		}
+	}
+
+	private void ThrowFormatError(int lineNumber, String line) throws TestCaseSyntaxException {
+		throw new TestCaseSyntaxException("Unexpected format at line "+lineNumber+": "+line);
 	}
 }
