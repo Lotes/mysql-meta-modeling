@@ -8,7 +8,6 @@ import de.loteslab.mmm.mysqllang.ScopeAction;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.AdministrationStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterDatabaseSimpleContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterDatabaseUpgradeNameContext;
-import de.loteslab.mmm.mysqllang.internal.MySqlParser.AlterEventContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintAutoIncrementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintCommentContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.ColumnConstraintContext;
@@ -44,6 +43,7 @@ import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropLogfileGroupContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropProcedureContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropServerContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropTableContext;
+import de.loteslab.mmm.mysqllang.internal.MySqlParser.DropTablespaceContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.EmptyStatementContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.LastStatementEmptyContext;
 import de.loteslab.mmm.mysqllang.internal.MySqlParser.LastStatementSqlContext;
@@ -537,6 +537,18 @@ public class SourceExecutionVisitor extends MySqlParserBaseVisitor<SourceExecuti
 				result.addAction(ScopeAction.REQUIRE, table);
 			result.addAction(ScopeAction.DELETE, table);		
 		}
+		
+		return result;
+	}
+	
+	@Override
+	public SourceExecution visitDropTablespace(DropTablespaceContext ctx) {
+		SourceExecution result = new SourceExecution();
+		
+		String name =textVisitor.visit(ctx.name);
+		ISymbol symbol = factory.createSymbol(name, factory.Predefined.Tablespace, SourceExecution.EMPTY);
+		result.addAction(ScopeAction.REQUIRE, symbol);
+		result.addAction(ScopeAction.DELETE, symbol);
 		
 		return result;
 	}

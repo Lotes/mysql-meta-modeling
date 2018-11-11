@@ -701,10 +701,10 @@ dropServer //ok
 
 dropTable //ok
     : DROP TEMPORARY? TABLE exists=ifExists?
-      tbls=tables dropType=(RESTRICT | CASCADE)?
+      tbls=tables (RESTRICT | CASCADE)?
     ;
 
-dropTablespace
+dropTablespace //ok
     : DROP TABLESPACE name=uid (ENGINE '='? engineName)?
     ;
 

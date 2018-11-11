@@ -65,6 +65,7 @@ public class AnalyzerTest {
 	@Parameter(0)
 	public File file;
 	
+	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void test() throws FileNotFoundException, IOException, TestCaseSyntaxException {
 		//read lines
