@@ -1,13 +1,24 @@
 # SQLC
 
-SQLC is a command-line tool that scans SQL files for dependencies like tables, triggers, user, etc.  and executes those files in an order such that all dependecies can be meeted.
+Goal:
+
+_SQLC is a command-line tool that scans SQL files for dependencies like tables, triggers, user, etc.  and executes those files in an order such that all dependecies can be meet. SQLC is also a JSON-driven preprocessor and template engine. The idea is to minimize SQL code duplicates: just define some metadata to describe your database system. That is the input for creating the queries that constructs your system._
+
+## Examples
+
+TODO
 
 ## Dialects
 
+Planned:
+
 * [ ] MySQL (in progress)
-* [ ] maybe SQLite
-* [ ] maybe T-SQL
-* [ ] maybe PostgreSQL
+
+Open for extension:
+
+* [ ] SQLite
+* [ ] T-SQL
+* [ ] PostgreSQL
 
 ## Features
 
@@ -20,10 +31,9 @@ SQLC is a command-line tool that scans SQL files for dependencies like tables, t
 * [ ] result file output
 * [ ] logging and error handling by directive
 * [ ] verbose mode
-* [ ] automatical topological script execution
 * [ ] [topological script execution](features/DEPENDENCIES.md) 
   * [x] by declaration
-  * [ ] by parsing
+  * [ ] by parsing (in progress)
 
 # License
 
