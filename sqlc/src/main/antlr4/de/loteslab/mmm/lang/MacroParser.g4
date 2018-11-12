@@ -95,8 +95,8 @@ define:
 	DEFINE name=ID body=definitionBody;
 
 definitionBody:
-    ASSIGN rvalue=expression
-    | SHIFT_LEFT fileName=STRING
+    ASSIGN rvalue=expression     #definitionBodyAssign
+    | SHIFT_LEFT fileName=STRING #definitionBodyLoad
     ;
     
 jObject: LBRACE list=pairs? RBRACE;

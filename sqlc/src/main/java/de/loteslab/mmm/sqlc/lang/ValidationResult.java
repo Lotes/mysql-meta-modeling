@@ -5,12 +5,13 @@ import org.antlr.v4.runtime.ParserRuleContext;
 public final class ValidationResult {
 	private boolean valid;
 	private String message;
+	private ParserRuleContext context;
 	
 	public ValidationResult() {
 		valid = true;
 		message = null;
 	}
-	public ValidationResult(String message) {
+	public ValidationResult(ParserRuleContext ctx, String message) {
 		valid = false;
 		this.message = message;
 	}
@@ -19,5 +20,8 @@ public final class ValidationResult {
 	}
 	public String getMEssage() {
 		return message;
+	}
+	public ParserRuleContext getContext() {
+		return context;
 	}
 }
