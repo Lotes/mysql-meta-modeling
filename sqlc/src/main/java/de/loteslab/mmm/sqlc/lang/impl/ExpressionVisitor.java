@@ -70,134 +70,177 @@ public class ExpressionVisitor extends MacroParserBaseVisitor<IExpression> {
 
 	@Override
 	public IExpression visitExpression(ExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.expr);
 	}
 
 	@Override
 	public IExpression visitConditionalExpression(ConditionalExpressionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression condition = visit(ctx.condition);
+		IExpression thenPart = visit(ctx.thenPart);
+		IExpression elsePart = visit(ctx.elsePart);
+		return new IfThenElseExpression(condition, thenPart, elsePart);
 	}
 
 	@Override
 	public IExpression visitLorExpansion(LorExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		return new BinaryOperationExpression(ctx, BinaryOperator.LOR, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitLorNext(LorNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitLandNext(LandNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitLandExpansion(LandExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		return new BinaryOperationExpression(ctx, BinaryOperator.LAND, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitOrNext(OrNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitOrExpansion(OrExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		return new BinaryOperationExpression(ctx, BinaryOperator.BOR, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitXorExpansion(XorExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		return new BinaryOperationExpression(ctx, BinaryOperator.XOR, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitXorNext(XorNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitAndNext(AndNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitAndExpansion(AndExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		return new BinaryOperationExpression(ctx, BinaryOperator.BAND, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitEqualityExpansion(EqualityExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		BinaryOperator op = ctx.op.getText().equals("==") ? BinaryOperator.EQ : BinaryOperator.NEQ;
+		return new BinaryOperationExpression(ctx, op, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitEqualityNext(EqualityNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitRelationalExpansion(RelationalExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		BinaryOperator op;
+		switch(ctx.op.getText()) {
+		case "<": op = BinaryOperator.LT; break;
+		case "<=": op = BinaryOperator.LE; break;
+		case ">": op = BinaryOperator.GT; break;
+		case ">=":
+		default:
+			op = BinaryOperator.GE; break;
+		}
+		return new BinaryOperationExpression(ctx, op, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitRelationalNext(RelationalNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitShiftNext(ShiftNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitShiftExpansion(ShiftExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		BinaryOperator op;
+		switch(ctx.op.getText()) {
+		case "<<": 
+			op = BinaryOperator.SHL;
+			break;
+		case ">>": 
+		default:
+			op = BinaryOperator.SHR;
+			break;
+		}
+		return new BinaryOperationExpression(ctx, op, lhs, rhs);
 	}
 
 	@Override
 	public IExpression visitAdditiveNext(AdditiveNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitAdditiveExpansion(AdditiveExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		BinaryOperator op;
+		switch(ctx.op.getText()) {
+		case "+": 
+			op = BinaryOperator.ADD;
+			break;
+		case "-": 
+		default:
+			op = BinaryOperator.SUBTRACT;
+			break;
+		}
+		return new BinaryOperationExpression(ctx, op, lhs, rhs);	}
 
 	@Override
 	public IExpression visitMultiplicativeNext(MultiplicativeNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
 	public IExpression visitMultiplicativeExpansion(MultiplicativeExpansionContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		IExpression lhs = visit(ctx.lhs);
+		IExpression rhs = visit(ctx.rhs);
+		BinaryOperator op;
+		switch(ctx.op.getText()) {
+		case "*": 
+			op = BinaryOperator.MULTIPLY;
+			break;
+		case "%": 
+			op = BinaryOperator.MODULO;
+			break;
+		case "/": 
+		default:
+			op = BinaryOperator.DIVIDE;
+			break;
+		}
+		return new BinaryOperationExpression(ctx, op, lhs, rhs);
 	}
 
 	@Override
@@ -208,8 +251,7 @@ public class ExpressionVisitor extends MacroParserBaseVisitor<IExpression> {
 
 	@Override
 	public IExpression visitUnaryNext(UnaryNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
@@ -226,8 +268,7 @@ public class ExpressionVisitor extends MacroParserBaseVisitor<IExpression> {
 
 	@Override
 	public IExpression visitPostfixNext(PostfixNextContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return visit(ctx.next);
 	}
 
 	@Override
@@ -296,17 +337,6 @@ public class ExpressionVisitor extends MacroParserBaseVisitor<IExpression> {
 		return null;
 	}
 
-	@Override
-	public IExpression visitImporting(ImportingContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IExpression visitDefine(DefineContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public IExpression visitDefinitionBodyAssign(DefinitionBodyAssignContext ctx) {
@@ -315,55 +345,16 @@ public class ExpressionVisitor extends MacroParserBaseVisitor<IExpression> {
 	
 	@Override
 	public IExpression visitDefinitionBodyLoad(DefinitionBodyLoadContext ctx) {
-		return new LoadFileExpression(ctx, extractString(ctx.fileName.getText()));
+		return new LoadFileExpression(ctx, Utilities.extractString(ctx.fileName.getText()));
 	}
 	
-	private String extractName(PairNameContext ctx) {
-		String value = ctx.getText();
-		if(value.startsWith("\""))
-			return extractString(value);
-		return value;
-	}
-	
-	private String extractString(String value) {
-		StringBuilder builder = new StringBuilder(value.length());
-		int index = 1;
-		while(index < value.length()-1) {
-			char c = value.charAt(index);
-			if(c > 0x1F) {
-				builder.append(c);
-			} else if(c == '\\') {
-				c = value.charAt(++index);
-				switch(c) {
-				case '"': builder.append('"'); break;
-				case '\\': builder.append('\\'); break;
-				case '/': builder.append('/'); break;
-				case 'b': builder.append('\b'); break;
-				case 'f': builder.append('\f'); break;
-				case 'n': builder.append('\n'); break;
-				case 'r': builder.append('\r'); break;
-				case 'u':
-					String hex = ""+value.charAt(++index)
-						+ value.charAt(++index)
-						+ value.charAt(++index)
-						+ value.charAt(++index);
-					c = (char)Integer.parseInt(hex, 16);
-					builder.append(c);
-					break;
-				}
-			}
-			index++;
-		}
-		return builder.toString();
-	}
-
 	@Override
 	public IExpression visitJObject(JObjectContext ctx) {
 		return new ObjectExpression(
 			ctx,
 			ctx.list.list.stream()
 				.map(pair -> new KeyValuePair<String, IExpression>(
-					extractName(pair.name), 
+					Utilities.extractName(pair.name), 
 					visit(pair.value))
 				)
 		);

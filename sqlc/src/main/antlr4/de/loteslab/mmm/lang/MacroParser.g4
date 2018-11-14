@@ -4,7 +4,7 @@ options { tokenVocab=MacroLexer; }
 
 start: HASH (importing | define);
 
-expression: conditionalExpression;
+expression: expr=conditionalExpression;
 
 conditionalExpression
     :   condition=logicalOrExpression (QUESTION thenPart=expression COLON elsePart=conditionalExpression)?
@@ -12,60 +12,60 @@ conditionalExpression
 
 logicalOrExpression
     : lhs=logicalOrExpression LOR rhs=logicalAndExpression #lorExpansion
-    | logicalAndExpression                                 #lorNext
+    | next=logicalAndExpression                                 #lorNext
     ;
 
 logicalAndExpression
     : lhs=logicalAndExpression LAND rhs=inclusiveOrExpression #landExpansion
-    | inclusiveOrExpression                                   #landNext
+    | next=inclusiveOrExpression                                   #landNext
     ;
 
 inclusiveOrExpression
     : lhs=inclusiveOrExpression OR rhs=exclusiveOrExpression #orExpansion
-    | exclusiveOrExpression                                  #orNext
+    | next=exclusiveOrExpression                                  #orNext
     ;
 
 exclusiveOrExpression
     : lhs=exclusiveOrExpression XOR rhs=andExpression #xorExpansion
-    | andExpression                                   #xorNext
+    | next=andExpression                                   #xorNext
     ;
 
 andExpression
     : lhs=andExpression AND rhs=equalityExpression #andExpansion
-    | equalityExpression                           #andNext
+    | next=equalityExpression                           #andNext
     ;
 
 equalityExpression:
     lhs=equalityExpression op=EQ rhs=relationalExpression #equalityExpansion
-    | relationalExpression                                #equalityNext
+    | next=relationalExpression                                #equalityNext
 ;
 
 relationalExpression:
     lhs=relationalExpression op=CMP rhs=shiftExpression #relationalExpansion
-    | shiftExpression                                   #relationalNext
+    | next=shiftExpression                                   #relationalNext
     ;
 
 shiftExpression:
     lhs=shiftExpression op=SHIFT rhs=additiveExpression #shiftExpansion
-    | additiveExpression                                #shiftNext
+    | next=additiveExpression                                #shiftNext
 ;
 additiveExpression:
     lhs=additiveExpression op=ADD rhs=multiplicativeExpression #additiveExpansion
-    | multiplicativeExpression                                 #additiveNext
+    | next=multiplicativeExpression                                 #additiveNext
     ;
     
 multiplicativeExpression:
     lhs=multiplicativeExpression op=MUL rhs=unaryExpression #multiplicativeExpansion
-    | unaryExpression                                       #multiplicativeNext
+    | next=unaryExpression                                       #multiplicativeNext
     ;
 
 unaryExpression:
     op=UNARY expr=unaryExpression   #unaryExpansion
-    | postfixExpression             #unaryNext
+    | next=postfixExpression             #unaryNext
     ;
     
 postfixExpression:
-    primaryExpression                                                  #postfixNext
+    next=primaryExpression                                                  #postfixNext
     | expr=postfixExpression LBRACKET index=expression RBRACKET        #postfixArray
     | expr=postfixExpression LPAREN arguments=expressionList? RPAREN   #postfixFunction
     | expr=postfixExpression DOT memberName=ID                         #postfixMember
